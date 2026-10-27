@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LANDSAFE AI – Sensors, Satellite and GIS Console</title>
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/logo.png">
+<style>
+:root {
+  --bg: #090e17;
+  --card: #111a2e;
+  --card-glass: rgba(17, 26, 46, 0.85);
+  --tx: #f8fafc;
+  --mu: #94a3b8;
+  --bd: #1e2c47;
+  --ac: #0ea5e9;
+  --sf: #152238;
+  --nav: #070c14;
+  --pa: #0284c7;
+  --pb: #38bdf8;
+  --core: #ef4444;
+  --buf: #f59e0b;
+  --ok: #10b981;
+  --gr: #64748b;
+  --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 30px -5px rgba(0, 0, 0, 0.6);
+  --radius: 12px;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f4f6fa;
+    --card: #ffffff;
+    --card-glass: rgba(255, 255, 255, 0.9);
+    --tx: #0f172a;
+    --mu: #64748b;
+    --bd: #e2e8f0;
+    --ac: #0284c7;
+    --sf: #edf2f7;
+    --nav: #0f172a;
+    --pa: #0284c7;
+    --pb: #0ea5e9;
+    --core: #dc2626;
+    --buf: #d97706;
+    --ok: #059669;
+    --gr: #94a3b8;
+    --shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.12);
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f4f6fa;
+  --card: #ffffff;
+  --card-glass: rgba(255, 255, 255, 0.9);
+  --tx: #0f172a;
+  --mu: #64748b;
+  --bd: #e2e8f0;
+  --ac: #0284c7;
+  --sf: #edf2f7;
+  --nav: #0f172a;
+  --pa: #0284c7;
+  --pb: #0ea5e9;
+  --core: #dc2626;
+  --buf: #d97706;
+  --ok: #059669;
+  --gr: #94a3b8;
+  --shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.12);
+}
+:root[data-theme="dark"] {
+  --bg: #090e17;
+  --card: #111a2e;
+  --card-glass: rgba(17, 26, 46, 0.85);
+  --tx: #f8fafc;
+  --mu: #94a3b8;
+  --bd: #1e2c47;
+  --ac: #0ea5e9;
+  --sf: #152238;
+  --nav: #070c14;
+  --pa: #0284c7;
+  --pb: #38bdf8;
+  --core: #ef4444;
+  --buf: #f59e0b;
+  --ok: #10b981;
+  --gr: #64748b;
+}
+
+body[data-pg=map]{--pa:#0d9488;--pb:#2dd4bf}
+body[data-pg=sens]{--pa:#0284c7;--pb:#38bdf8}
+body[data-pg=sat]{--pa:#7c3aed;--pb:#a78bfa}
+body[data-pg=alerts]{--pa:#ea580c;--pb:#fb923c}
+body[data-pg=rng]{--pa:#ef4444;--pb:#f87171}
+body[data-pg=rep]{--pa:#65a30d;--pb:#a3e635}
+body[data-pg=src],body[data-pg=set]{--pa:#475569;--pb:#94a3b8}
+
+* { box-sizing: border-box; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); font-size: 14px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--tx);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+/* Sidebar navigation */
+aside {
+  background: var(--nav);
+  border-right: 1px solid var(--bd);
+  padding: 20px 14px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  padding: 0 4px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.logo-img {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  flex-shrink: 0;
+}
+.logo-text b {
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #fff;
+  display: block;
+  line-height: 1.2;
+}
+.logo-text small {
+  display: block;
+  color: var(--mu);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+nav button {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--mu);
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 500;
+  text-align: left;
+  transition: all 0.15s ease;
+  position: relative;
+}
+nav button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+nav button.on {
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.03));
+  color: #fff;
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--pb);
+}
+nav i {
+  font-style: normal;
+  width: 20px;
+  text-align: center;
+  font-size: 15px;
+  opacity: 0.9;
+}
+
+.who {
+  margin-top: auto;
+  padding: 14px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--mu);
+}
+.who b { color: var(--tx); }
+.who .b {
+  margin-top: 8px;
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--bd);
+  color: var(--tx);
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.who .b:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+/* Main workspace */
+main {
+  padding: 18px 24px 40px;
+  min-width: 0;
+}
+
+/* Card base */
+.card {
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  position: relative;
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.card h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Top control header */
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  align-items: center;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, var(--card), var(--sf));
+  border: 1px solid var(--bd);
+}
+.top label {
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.top label b {
+  color: var(--ac);
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 14px;
+}
+.top input[type=range] {
+  width: 160px;
+  accent-color: var(--ac);
+  cursor: pointer;
+}
+
+/* Grids & layouts */
+.g { display: grid; gap: 14px; margin-bottom: 14px; }
+.g4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.g3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.split { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); gap: 14px; }
+
+/* Buttons & Inputs */
+button.b, select {
+  font: inherit;
+  color: var(--tx);
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  min-height: 36px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+button.b:hover {
+  background: var(--bd);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+button.p {
+  background: linear-gradient(135deg, var(--pa), var(--pb));
+  color: #fff;
+  border: 0;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.35);
+}
+button.p:hover {
+  filter: brightness(1.12);
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.45);
+}
+button[aria-pressed=true] {
+  border-color: var(--ac);
+  background: rgba(14, 165, 233, 0.15);
+  color: var(--ac);
+  font-weight: 600;
+}
+button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid var(--ac);
+  outline-offset: 2px;
+}
+input.t, #lg input {
+  width: 100%;
+  font: inherit;
+  color: var(--tx);
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 4px 0 10px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+input.t:focus, #lg input:focus {
+  border-color: var(--ac);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+}
+
+/* Hero banner */
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  color: #fff;
+  background: linear-gradient(135deg, #0e1d2b 0%, #15293d 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow);
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--pa), var(--pb));
+}
+.hero h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  position: relative;
+}
+.hero p {
+  margin: 6px 0 0;
+  max-width: 620px;
+  position: relative;
+  opacity: 0.9;
+  font-size: 13.5px;
+  color: #cbd5e1;
+}
+.hero .ic {
+  position: absolute;
+  right: 20px;
+  top: 14px;
+  font-size: 42px;
+  opacity: 0.75;
+}
+.hero .chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  position: relative;
+}
+.chips span {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 3px 12px;
+  border-radius: 99px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+.hero .rain {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(105deg, transparent 45%, rgba(56, 189, 248, 0.25) 50%, transparent 55%);
+  background-size: 24px 40px;
+  opacity: 0.3;
+  animation: rn 1.2s linear infinite;
+  pointer-events: none;
+}
+@keyframes rn { to { background-position: -24px 40px; } }
+
+/* Stats HUD */
+.stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.stat b {
+  font-size: 28px;
+  font-weight: 700;
+  font-family: ui-monospace, "SF Mono", monospace;
+  letter-spacing: -0.5px;
+  color: var(--tx);
+  line-height: 1.2;
+}
+.stat span {
+  color: var(--mu);
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+/* Badges */
+.bd {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th, td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--bd);
+}
+th {
+  color: var(--mu);
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+tr.k { cursor: pointer; transition: background 0.15s ease; }
+tr.k:hover { background: var(--sf); }
+.sc { overflow-x: auto; }
+
+/* Map Viewport */
+.mapw {
+  position: relative;
+  aspect-ratio: 600 / 400;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 10px 0;
+  background: #060b13;
+  border: 1px solid var(--bd);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+}
+.mapw canvas, .mapw svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.mapw::after {
+  content: "N ▲";
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  color: var(--mu);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: rgba(0,0,0,0.5);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.1);
+  pointer-events: none;
+}
+
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.note { font-size: 12px; color: var(--mu); margin-top: 6px; line-height: 1.4; }
+
+/* Factor items & gauges */
+.fx {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr 1fr;
+  gap: 6px 12px;
+  align-items: center;
+  font-size: 13px;
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.fx small { display: block; color: var(--mu); font-size: 11.5px; }
+.off { opacity: 0.45; }
+
+.bar {
+  height: 8px;
+  background: var(--sf);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.bar i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--pa), var(--pb));
+}
+
+.nd {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+.nd div {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--mu);
+}
+.nd b {
+  display: block;
+  font-size: 18px;
+  font-family: ui-monospace, "SF Mono", monospace;
+  color: var(--tx);
+  margin: 2px 0;
+}
+
+.warn {
+  border-left: 4px solid #f97316;
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  border-left-width: 4px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.mini {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+.mini canvas {
+  width: 100%;
+  aspect-ratio: 600 / 400;
+  border-radius: 8px;
+  display: block;
+  border: 1px solid var(--bd);
+}
+
+/* Smartphone preview */
+.phone {
+  width: 260px;
+  margin: 10px auto;
+  border: 8px solid #1e293b;
+  border-radius: 32px;
+  padding: 16px 12px;
+  min-height: 200px;
+  background: var(--bg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+.phone::before {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: #334155;
+  border-radius: 99px;
+  margin: 0 auto 12px;
+}
+.sms {
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  white-space: pre-line;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.sms small {
+  display: block;
+  color: var(--ac);
+  font-weight: 600;
+  margin-bottom: 4px;
+  font-size: 11px;
+}
+.phone .sms + .sms { margin-top: 8px; }
+
+.al {
+  border-left: 4px solid;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  background: var(--sf);
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  transition: transform 0.1s ease;
+}
+.al:hover { transform: translateX(2px); }
+
+/* Radar pulse animation */
+.pulse {
+  animation: pl 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  transform-origin: center;
+}
+@keyframes pl {
+  0% { opacity: 0.8; stroke-width: 2px; }
+  50% { opacity: 0.25; stroke-width: 1px; }
+  100% { opacity: 0.05; stroke-width: 0.5px; }
+}
+
+/* Responsive */
+@media (max-width: 860px) {
+  .app { grid-template-columns: 1fr; }
+  aside { position: static; height: auto; padding: 12px 14px; }
+  nav { flex-direction: row; overflow-x: auto; gap: 6px; padding-bottom: 4px; }
+  nav button { white-space: nowrap; width: auto; padding: 8px 12px; }
+  .split { grid-template-columns: 1fr; }
+  main { padding: 14px 12px; }
+}
+
+/* Login Modal */
+#lg {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(6, 11, 19, 0.88);
+  backdrop-filter: blur(16px);
+  overflow: auto;
+}
+#lg.h { display: none; }
+#lg select { width: 100%; margin: 4px 0 10px; }
+#lg .card {
+  width: 100%;
+  max-width: 400px;
+  padding: 28px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(145deg, #10192b, #0c1424);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+}
+.lg-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.lg-logo-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  flex-shrink: 0;
+}
+#lg h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #fff, #93c5fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+#lg label, .card label {
+  font-size: 12px;
+  color: var(--mu);
+  display: block;
+  font-weight: 500;
+}
+.err {
+  color: #ef4444;
+  min-height: 18px;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.dm { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.dm .b {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.2);
+  color: #7dd3fc;
+  border-radius: 6px;
+}
+.dm .b:hover {
+  background: rgba(56, 189, 248, 0.2);
+  color: #fff;
+}
+
+.spark {
+  width: 100%;
+  height: 70px;
+  background: var(--sf);
+  border-radius: 8px;
+  border: 1px solid var(--bd);
+}
+.live {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  margin-right: 8px;
+  box-shadow: 0 0 8px #10b981;
+  animation: pl 1.6s infinite;
+}
+
+/* Range & Area Safety view */
+.ar-ctl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px 20px;
+  margin-bottom: 14px;
+}
+.ar-ctl label { font-size: 13px; color: var(--mu); display: block; }
+.ar-ctl b { color: var(--tx); font-family: ui-monospace, "SF Mono", monospace; }
+.ar-ctl input[type=range] { width: 100%; accent-color: var(--ac); }
+.ar-ctl select { width: 100%; margin-top: 6px; }
+
+.ar-mapw {
+  aspect-ratio: 3 / 2;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--sf);
+  border: 1px solid var(--bd);
+}
+.ar-mapw svg { width: 100%; height: 100%; display: block; }
+.ar-mapw svg text { fill: var(--tx); font-size: 12px; font-weight: 600; }
+
+.ar-g2e { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+.ar-g2e .phone { width: 100%; max-width: 320px; }
+
+.ar-kp {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.ar-kp div {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--mu);
+}
+.ar-kp b {
+  display: block;
+  font-size: 22px;
+  font-family: ui-monospace, "SF Mono", monospace;
+  color: var(--tx);
+  margin-top: 2px;
+}
+
+.ar-tile {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.ar-tile b { font-size: 16px; display: block; }
+
+.ar-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.ar-split {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.ar-split td:nth-child(2) { white-space: nowrap; }
+
+/* SOS Buttons */
+.btn-safe {
+  background: linear-gradient(135deg, #059669, #10b981) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  border: 0 !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+.btn-safe:hover { filter: brightness(1.15); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45); }
+.btn-help {
+  background: linear-gradient(135deg, #b91c1c, #ef4444) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  border: 0 !important;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+.btn-help:hover { filter: brightness(1.15); box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5); }
+
+/* Colorblind-safe badges & high-contrast labels */
+.bd {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.bd-low { color: #fff; background: #10b981 !important; }
+.bd-moderate { color: #1e293b; background: #fbbf24 !important; font-weight: 800; border-color: rgba(0,0,0,0.2); }
+.bd-high { color: #fff; background: #f97316 !important; }
+.bd-critical { color: #fff; background: #ef4444 !important; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); }
+
+/* Simulation Banner */
+.sim-banner {
+  background: linear-gradient(90deg, #b45309, #d97706);
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.4);
+  font-size: 13px;
+  animation: pulse-sim 2s infinite;
+}
+@keyframes pulse-sim {
+  50% { box-shadow: 0 4px 20px rgba(245, 158, 11, 0.7); }
+}
+
+/* Low-Bandwidth Mode */
+body.low-bw .rain, body.low-bw .pulse { animation: none !important; }
+body.low-bw .mapw canvas { display: none !important; }
+body.low-bw .mapw { background: #0c1524 !important; aspect-ratio: auto; min-height: 180px; }
+body.low-bw .card { box-shadow: none !important; backdrop-filter: none !important; }
+body.low-bw .hero { background: #0c1424 !important; }
+
+@media (max-width: 860px) {
+  .ar-g2e, .ar-split { grid-template-columns: 1fr; }
+}
+</style></head><body data-pg="dash">
+<div class="app"><aside><div class="logo"><img src="/logo.png" alt="LANDSAFE AI Logo" class="logo-img"><div class="logo-text"><b>LANDSAFE AI</b><small>North East India</small></div></div><nav id="nav"></nav><div class="who" id="who"></div></aside>
+<main>
+<div class="card top" id="topb">
+<label for="storm">Storm intensity <b id="sv">0%</b></label><input id="storm" type="range" min="0" max="100" value="0">
+<button class="b p" id="sim">Simulate storm</button><button class="b" id="rst">Reset</button><button class="b" id="lv" aria-pressed="true">Demo feed: on</button>
+<button class="b" id="sen" aria-pressed="true">Ground sensors: on</button><button class="b" id="sat" aria-pressed="true">Satellite: on</button>
+<button class="b" id="bw" aria-pressed="false" onclick="toggleLowBw()">📶 Low-bandwidth: off</button>
+</div>
+<div id="sim-banner" style="display:none" class="sim-banner">
+  <span>⚡ <b>SIMULATION ACTIVE:</b> Storm intensity at <span id="sb-pct">0%</span>. Live sensor and satellite values are scaled for demonstration.</span>
+  <button class="b" onclick="rstSim()" style="background:#fff;color:#b45309;font-weight:700;padding:4px 10px;border:0">Exit Simulation</button>
+</div>
+<div id="pg"></div>
+</main></div>
+<div id="lg"><div class="card"><div class="lg-brand"><img src="/logo.png" alt="LANDSAFE AI Logo" class="lg-logo-img"><div><h2 style="margin:0 0 2px">LANDSAFE AI</h2><div class="note" style="margin:0">North East India · Early-Warning Console</div></div></div>
+<div class="row" style="margin-bottom:12px"><button class="b" type="button" id="t1" aria-pressed="true" onclick="tab(1)">Sign in</button><button class="b" type="button" id="t2" aria-pressed="false" onclick="tab(2)">Create account</button></div>
+<form id="lf"><label for="lu">Username</label><input id="lu" autocomplete="username"><label for="lp">Password</label><input id="lp" type="password" autocomplete="current-password"><div class="err" id="le" role="alert"></div><button class="b p" style="width:100%">Sign in</button></form>
+<form id="sf" style="display:none"><label for="sn">Full name</label><input id="sn" autocomplete="name"><label for="su">Username (letters, numbers, underscore)</label><input id="su" autocomplete="username"><label for="sp">Password (at least 8 characters)</label><input id="sp" type="password" autocomplete="new-password"><label for="sph">Phone with country code (optional)</label><input id="sph" inputmode="tel" placeholder="+91XXXXXXXXXX"><label for="sz">My home area</label><select id="sz"></select><div class="err" id="se" role="alert"></div><button class="b p" style="width:100%">Create account</button></form>
+<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--bd)"><small style="color:var(--mu);display:block;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Try a demo profile with 1-click:</small>
+<div class="dm">
+  <button class="b" type="button" onclick="demo('admin')">🛡️ Admin</button>
+  <button class="b" type="button" onclick="demo('officer')">📡 Officer</button>
+  <button class="b" type="button" onclick="demo('public')">🏡 Resident</button>
+</div></div></div></div>
+<script>var module={exports:{}};</script>
+<script src="/scoring.js"></script>
+<script>window.SCM=(module.exports&&module.exports.calculateRisk)?module.exports:null;</script>
+<script>
+const LV=[['LOW','#10b981'],['MODERATE','#fbbf24'],['HIGH','#f97316'],['CRITICAL','#ef4444']],TH=[0,40,60,80],EX=['','Low','Medium','High'],IN=['','Low','Major road','Critical road'];
+const BD_CLS=['bd-low','bd-moderate','bd-high','bd-critical'],BD_SYM=['●','▲','■','✖'];
+const D=[['Tawang Sector','Arunachal Pradesh',27.59,91.86,25,40,38,7,2,3,'NH-13'],['Ziro Valley','Arunachal Pradesh',27.55,93.83,28,38,30,3,1,2,'Ziro Rd'],['Guwahati Hills','Assam',26.14,91.74,30,45,26,5,3,3,'NH-27'],['Dima Hasao Rail','Assam',25.5,93.02,35,48,34,8,1,3,'Rail line'],['Senapati Slopes','Manipur',25.27,94.02,30,42,32,4,2,2,'NH-2'],['Cherrapunji Gorge','Meghalaya',25.28,91.7,45,55,28,6,2,2,'SH-5'],['Aizawl Ridge','Mizoram',23.73,92.72,32,44,36,6,3,2,'NH-6'],['Kohima Bypass','Nagaland',25.67,94.1,27,41,33,4,2,3,'NH-29'],['Gangtok NH10','Sikkim',27.33,88.61,34,46,40,9,3,3,'NH-10'],['Agartala Hills','Tripura',23.83,91.28,20,36,22,2,1,1,'Local Rd'],['Itanagar Outskirts','Arunachal Pradesh',27.08,93.61,26,39,29,4,2,2,'NH-415'],['Shillong Bypass','Meghalaya',25.57,91.88,38,50,27,5,3,3,'Shillong Bypass'],['Imphal Ring Rd','Manipur',24.82,93.94,29,43,24,3,3,3,'Ring Rd'],['Lunglei Slope','Mizoram',22.89,92.73,33,46,35,5,2,2,'NH-502A'],['Mokokchung Pass','Nagaland',26.32,94.52,28,40,31,3,1,2,'NH-702'],['Gyalshing Ridge','Sikkim',27.29,88.26,36,47,37,6,2,2,'NH-510']];
+const px=lo=>(lo-87.8)/7*600,py=la=>(28.3-la)/5.8*400;
+let seed=11;const rnd=()=>(seed=seed*16807%2147483647)/2147483647,nz=(i,j)=>{const v=Math.sin(i*12.9898+j*78.233)*43758.5453;return v-Math.floor(v)};
+const Z=D.map(a=>({n:a[0],s:a[1],rain:a[4],soil:a[5],sl:a[6],h:a[7],ex:a[8],inf:a[9],rd:a[10],x:px(a[3]),y:py(a[2]),lv:0,live:{},
+nodes:[0,1,2].map(k=>({o:(rnd()-.5)*5,j:0,b:65+Math.round(rnd()*30),x:px(a[3])+(k-1)*13,y:py(a[2])+16}))}));
+const S={pg:'dash',sel:8,l:0,tg:.85,live:1,hist:[],out:[],phone:'',ep:'',auto:1,user:null,checks:[],reps:[{id:'LR-1042',zi:8,hz:'Rockfall',u:'resident_gtk',t:'08:20',st:'Pending'},{id:'LR-1043',zi:5,hz:'Water seepage',u:'resident_cpj',t:'09:05',st:'Pending'}],rz:null,rh:null,sen:1,sat:1,layer:'sat',lang:'en',al:[],sent:0,rv:1,sn:1,tm:null};
+const PG=[['dash','Dashboard','▦'],['map','Risk Map (GIS)','◉'],['sens','Soil Sensors','⌁'],['sat','Satellite and GIS','✦'],['alerts','SMS Alerts','⚑'],['rep','Reports','✎'],['set','SMS Settings','⚙']];
+const HERO={dash:['⛰️','Landslide early-warning console','Ground soil-moisture sensors, satellite imagery and GIS terrain fused into one risk score for 16 NER zones.',['Soil sensors','Sentinel-1 InSAR','Sentinel-2 NDVI','GPM rainfall','DEM + geology']],
+map:['🗺️','Risk map with satellite and GIS layers','Switch between satellite, vegetation, rainfall, ground movement and slope. Click a zone to see how its score is built.',['Satellite view','NDVI','InSAR','Slope']],
+sens:['💧','Soil-moisture sensor network','Three ESP32 nodes per zone report volumetric soil moisture over LoRa (simulated in this demo; the telemetry API is ready for real nodes). Moisture near saturation is what turns heavy rain into slope failure.',['48 nodes','LoRa gateway','Battery and signal']],
+sat:['🛰️','Satellite imagery and GIS terrain','Wide-area coverage where sensors are sparse: rainfall, vegetation loss, ground movement, plus slope and road exposure from GIS.',['Sentinel-1','Sentinel-2','GPM IMERG','DEM']],
+alerts:['🚨','Automatic SMS alerts','When a zone reaches High or Critical, every registered phone in its geofence gets a text in the local language.',['Geofence','English','Hindi','Assamese','Bengali']],
+rep:['📋','Field reports','Residents report cracks, seepage and blocked roads. Officers verify them, and a confirmed report raises that area\'s risk score.',['Crowd-sourced','Officer verified','Feeds the risk score']],
+set:['⚙️','SMS settings','Send alerts to your own phone. Visible to administrators only.',['Phone','Auto-send','Backend']]};
+const MSG={en:'High landslide risk detected. Please follow local authority instructions.',hi:'भूस्खलन का उच्च जोखिम पाया गया है। कृपया स्थानीय प्राधिकरण के निर्देशों का पालन करें।',as:'ভূমিস্খলনৰ উচ্চ বিপদ ধৰা পৰিছে। অনুগ্ৰহ কৰি স্থানীয় কৰ্তৃপক্ষৰ নিৰ্দেশ মানি চলক।',bn:'ভূমিধসের উচ্চ ঝুঁকি শনাক্ত হয়েছে। অনুগ্রহ করে স্থানীয় কর্তৃপক্ষের নির্দেশ অনুসরণ করুন।'};
+const $=id=>document.getElementById(id),W=120,H=80,K=5,E=new Float32Array(W*H),SL=new Float32Array(W*H),VG=new Float32Array(W*H);
+const gs=(x,y,z,s)=>Math.exp(-((x-z.x)**2+(y-z.y)**2)/(2*s*s));
+for(let j=0;j<H;j++)for(let i=0;i<W;i++)E[j*W+i]=Z.reduce((a,z)=>a+z.sl/40*gs(i*K,j*K,z,45),0)+.1*Math.sin(i/5)*Math.cos(j/6)+nz(i,j)*.05;
+let mx=0;for(let j=1;j<H-1;j++)for(let i=1;i<W-1;i++){const k=j*W+i,v=Math.abs(E[k+1]-E[k-1])+Math.abs(E[k+W]-E[k-W]);SL[k]=v;mx=Math.max(mx,v)}
+for(let k=0;k<W*H;k++){SL[k]/=mx;const i=k%W,j=(k/W)|0;VG[k]=Math.max(.05,Math.min(1,.88-.45*SL[k]-Z.reduce((a,z)=>a+.25*z.h/9*gs(i*K,j*K,z,28),0)+(nz(j,i)-.5)*.14))}
+const ramp=(v,st)=>{v=Math.max(0,Math.min(.999,v))*(st.length-1);const a=st[v|0],b=st[(v|0)+1],t=v-(v|0);return a.map((c,n)=>c+(b[n]-c)*t)};
+const MAPS={sat:'Satellite view',ndvi:'Vegetation (NDVI)',rain:'Rainfall',insar:'Ground movement (InSAR)',slope:'Slope (GIS)'};
+const LEG={sat:'True-colour view with hillshade. Brown patches are bare or cleared slopes.',ndvi:'Green is dense vegetation. Red and yellow are bare or cleared ground.',rain:'Blue to purple: heavier rainfall in the last 24 hours.',insar:'Green to red: ground surface moving, in millimetres over 12 days.',slope:'Darker is steeper terrain from the digital elevation model.'};
+const rF=(x,y)=>{let a=0,b=0;Z.forEach(z=>{const g=gs(x,y,z,80);a+=z.rain*g;b+=g});return a/b*(1+S.l*5.5)};
+const dF=(x,y)=>Z.reduce((a,z)=>a+z.sl/40*gs(x,y,z,35),0)*(2+S.l*12);
+function draw(layer,cv){const cx=cv.getContext('2d'),img=cx.createImageData(W,H);for(let j=0;j<H;j++)for(let i=0;i<W;i++){const k=j*W+i,o=k*4,x=i*K,y=j*K;let c;
+if(layer=='sat'){const sh=Math.max(.6,Math.min(1.25,.95+5*((E[k-W-1]||0)-(E[k+W+1]||0))));const a=[132,108,80],b=[44,98,52],t=VG[k];c=a.map((v,n)=>(v+(b[n]-v)*t)*sh)}
+else if(layer=='ndvi')c=ramp(VG[k],[[170,40,30],[225,170,50],[190,215,90],[40,150,60],[10,90,40]]);
+else if(layer=='rain')c=ramp(rF(x,y)/200,[[40,60,70],[60,140,200],[50,70,200],[150,50,200]]);
+else if(layer=='insar')c=ramp(dF(x,y)/14,[[40,140,90],[220,200,60],[230,110,30],[200,40,40]]);
+else c=ramp(SL[k]*1.4,[[236,240,232],[170,185,170],[90,110,100],[30,45,45]]);
+img.data[o]=c[0];img.data[o+1]=c[1];img.data[o+2]=c[2];img.data[o+3]=255}cx.putImageData(img,0,0)}
+function calc(z){const l=S.l,r0=z.rain*(1+l*5.5),sm=Math.min(96,z.soil+(94-z.soil)*l*.9),{sen,sat}=S;
+z.nd=z.nodes.map(n=>Math.max(5,Math.min(99,sm+n.o+n.j)));
+const gauge=r0*(1+z.nodes[0].j/60),sR=r0*.92+3,sS=sm*.85+4,ins=Math.min(16,(z.iv!=null?z.iv:z.sl/40*2)+z.sl/40*l*12),ndvi=z.nv!=null?z.nv:Math.max(.2,.82-z.sl*.008-z.h*.02);
+const lvR=z.live&&z.live.rain,lvS=z.live&&z.live.so,rn=lvR?r0:sen&&sat?(gauge+sR)/2:sen?gauge:sR,so=lvS?sm:sen?z.nd.reduce((a,b)=>a+b)/3:sS;
+const T=[{n:'Rainfall',s:sen&&sat?'Satellite + rain gauge':sen?'Node rain gauge':'Satellite (GPM)',t:Math.round(rn)+' mm',v:Math.min(rn/180,1),w:.35,on:sen||sat},
+{n:'Soil moisture',s:sen&&sat?'Sensor nodes, satellite cross-check':sen?'ESP32 sensor nodes':'Satellite estimate (coarse)',t:so.toFixed(0)+'%',v:Math.min(so/90,1),w:.4,on:sen||sat},
+{n:'Ground movement',s:'InSAR (Sentinel-1)',t:ins.toFixed(1)+' mm / 12 d',v:Math.min(ins/14,1),w:.15,on:!!sat},
+{n:'Vegetation loss',s:'Sentinel-2 NDVI',t:'NDVI '+ndvi.toFixed(2),v:z.nv!=null?Math.max(0,Math.min(1,(.8-z.nv)/.5)):Math.min(1,z.sl/80+z.h/18),w:.1,on:!!sat}];
+if(window.SCM){const r=SCM.calculateRisk({rain:rn,soil:so,insar:sat?ins:0,ndvi:sat?ndvi:1,sl:z.sl,h:z.h,ex:z.ex,inf:z.inf,verifiedReports:Math.round((z.bonus||0)/6)}),b=r.breakdown,on=sen||sat,su=b.terrainMultiplier;
+T[0].p=on?b.rainPoints:0;T[1].p=on?b.soilPoints:0;T[2].p=sat?b.insarPoints:0;T[3].p=sat?b.vegPoints:0;
+z.T=T;z.su=su;z.rn=rn;z.so=so;z.ins=ins;z.ndvi=ndvi;z.sc=on?Math.min(99,Math.round(T.reduce((a,t)=>a+t.p,0)*su)+b.citizenBonus):Math.min(99,z.bonus||0);z.reasons=r.reasons.slice()}
+else{const tot=T.filter(t=>t.on).reduce((a,t)=>a+t.w,0)||1,G=.5*z.sl/40+.3*Math.min(z.h/9,1)+.2*z.ex/3,su=.55+.55*G;
+T.forEach(t=>t.p=t.on?100*t.w/tot*t.v*su:0);z.T=T;z.su=su;z.rn=rn;z.so=so;z.ins=ins;z.ndvi=ndvi;
+z.sc=Math.min(99,Math.round(T.reduce((a,t)=>a+t.p,0)+(z.bonus||0)));
+const rCrit=Math.round(Math.max(25,75-(z.sl-15)*0.8));
+z.reasons=[];
+if(rn>=rCrit)z.reasons.push(`24h Rain: ${Math.round(rn)} mm (exceeds critical slope trigger threshold of ${rCrit} mm)`);
+else if(rn>rCrit*0.7)z.reasons.push(`24h Rain: ${Math.round(rn)} mm (approaching trigger threshold of ${rCrit} mm)`);
+if(so>=80)z.reasons.push(`Soil saturation: ${so.toFixed(0)}% (high pore-pressure / liquefaction risk >80%)`);
+else if(so>=65)z.reasons.push(`Soil saturation: ${so.toFixed(0)}% (elevated pore pressure)`);
+if(ins>=4.0)z.reasons.push(`Sentinel-1 InSAR: ${ins.toFixed(1)} mm ground displacement (active slope strain)`);
+if(z.sl>=32)z.reasons.push(`Steep topography: ${z.sl}° slope gradient (gravitational shear elevated)`);
+if(z.h>=5)z.reasons.push(`Historical susceptibility: ${z.h} recorded NASA GLC slide events within 30 km`);
+if(z.bonus)z.reasons.push(`${z.bonus/6} citizen hazard report(s) verified by field officers (+${z.bonus} pts)`);
+if(!z.reasons.length)z.reasons.push('Normal baseline sensor and satellite conditions');}
+}
+const SRV={auto:false};fetch('/api/health').then(r=>r.json()).then(j=>{SRV.auto=!!j.auto_alerts}).catch(()=>{});
+function addA(z,m,lv,man){if(TOK&&pro()&&lv>=2&&(man||(S.auto&&!SRV.auto&&S.l<.01&&!S.live)))ap('POST','/api/alerts',{zone:Z.indexOf(z),level:lv,message:'LANDSAFE '+LV[lv][0]+': '+z.n+'. '+ADV[lv]}).catch(()=>{});S.al.unshift({t:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}),z:z.n,m,lv});S.al=S.al.slice(0,12)}
+const pop=z=>z.ex*800+z.inf*500+z.h*150;
+function update(){Z.forEach(z=>{calc(z);z.tr=(z.tr||[]).concat(z.sc).slice(-6);let l=0;for(let n=1;n<4;n++)if(z.sc>=TH[n])l=n;if(l<z.lv&&z.sc>=TH[z.lv]-3)l=z.lv;
+if(l>z.lv&&l>=2){S.sent+=pop(z);if(S.auto)sendSms(z,l);addA(z,`${LV[l][0]}: SMS sent to ${pop(z).toLocaleString()} registered phones within 5 km`,l)}
+if(l<2&&z.lv>=2)addA(z,'Risk eased: all-clear SMS sent',0);z.lv=l});
+const sb=$('sim-banner');if(sb){if(S.l>0.01){sb.style.display='flex';const sbp=$('sb-pct');if(sbp)sbp.textContent=Math.round(S.l*100)+'%'}else{sb.style.display='none'}}
+$('sv').textContent=Math.round(S.l*100)+'%';$('storm').value=S.l*100;const ae=document.activeElement;if(ae&&$('pg').contains(ae)&&/INPUT|SELECT/.test(ae.tagName))syncTop();else render()}
+const bd=z=>`<span class="bd ${BD_CLS[z.lv]}">${BD_SYM[z.lv]} ${LV[z.lv][0]}</span>`;
+function prov(z){const L=z.live||{},ks=[['rain','Rain'],['so','Soil'],['sl','Slope'],['h','Past slides'],['iv','InSAR'],['nv','NDVI']],cf=window.SCM?SCM.inputConfidence({rain:!!L.rain,soil:!!L.so,slope:!!L.sl,history:!!L.h,insar:!!L.iv,ndvi:!!L.nv}):null;
+return`<div class="note" style="margin:6px 0">Inputs: ${ks.map(k=>k[1]+' '+PV(z,k[0])).join(' · ')}${cf?` · Data confidence <b>${cf.confidence_pct}% (${cf.confidence})</b>`:''}. Sensor nodes are simulated in this demo.</div>`}
+function detail(z){
+const expl=`<div style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.25);border-radius:8px;padding:8px 12px;margin:10px 0"><div style="font-weight:700;font-size:11.5px;color:var(--ac);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">🔍 Why this zone is flagged:</div><ul style="margin:0;padding-left:18px;font-size:12px;line-height:1.45;color:var(--tx)">${(z.reasons||[]).map(r=>`<li>${esc(r)}</li>`).join('')}</ul></div>`;
+if(!pro())return`<div class="card"><h3>${z.n}, ${z.s}</h3><p>${bd(z)} risk level</p><p>${ADV[z.lv]}</p>${expl}<div class="note">Detailed sensor and satellite data is for authorised staff only.</div></div>`;
+return`<div class="card"><h3>${z.n}, ${z.s}: score ${z.sc}% ${bd(z)}</h3><p>Main driver: <b>${[...z.T].sort((a,b)=>b.p-a.p)[0].n}</b></p>`+expl+prov(z)+z.T.map(t=>`<div class="fx${t.on?'':' off'}"><span>${t.n}<small>${t.on?t.s:'source off'}</small></span><span>${t.on?t.t:'no data'}</span><span><div class="bar"><i style="width:${Math.min(100,t.p*2.2)}%;background:var(--ac)"></i></div><small>${t.p.toFixed(1)} points</small></span></div>`).join('')+
+`<div class="fx"><span>Terrain (GIS)<small>Slope ${z.sl}°, ${z.h} past slides, ${IN[z.inf]} (${z.rd})</small></span><span>×${z.su.toFixed(2)}</span><span><small>multiplies the live signals</small></span></div>`+
+`${z.bonus?`<div class="fx"><span>Verified field reports<small>Confirmed by an officer</small></span><span>${z.bonus/6} report(s)</span><span><small>+${z.bonus} points</small></span></div>`:''}<div class="nd">${z.nodes.map((n,k)=>`<div class="${S.sen?'':'off'}">Node ${'ABC'[k]}<b>${S.sen?z.nd[k].toFixed(0)+'%':'offline'}</b>battery ${n.b}%</div>`).join('')}</div></div>`}
+function mapSvg(){let s='';if(S.rv)s+='<path d="'+[[94.8,27.6],[93.5,27],[92.4,26.6],[91.74,26.15],[90.8,26.1],[90,25.6],[89.7,25.2]].map((p,i)=>(i?'L':'M')+px(p[0]).toFixed(0)+' '+py(p[1]).toFixed(0)).join('')+'" fill="none" stroke="#7cc4e8" stroke-width="4" stroke-linecap="round"/>';
+Z.forEach((z,i)=>{const c=LV[z.lv][1],on=i==S.sel;
+if(z.lv>=2)s+=`<circle class="pulse" cx="${z.x}" cy="${z.y}" r="34" fill="${c}" fill-opacity=".25" stroke="${c}" stroke-width="2" stroke-dasharray="5 3"/>`;
+if(S.sn&&pro())z.nodes.forEach((n,k)=>{const m=z.nd?z.nd[k]:50,f=m>85?'#dc2626':m>70?'#f97316':m>55?'#eab308':'#16a34a';s+=`<rect x="${n.x-3.5}" y="${n.y-3.5}" width="7" height="7" transform="rotate(45 ${n.x} ${n.y})" fill="${f}" stroke="#fff" stroke-width="1"/>`});
+s+=`<g style="cursor:pointer" onclick="S.sel=${i};render()"><circle cx="${z.x}" cy="${z.y}" r="${on?10:7}" fill="${c}" stroke="#fff" stroke-width="2.5"><title>${z.n}: ${z.sc}% ${LV[z.lv][0]}</title></circle><text x="${z.x}" y="${z.y-13}" text-anchor="middle" font-size="${on?12:10}" font-weight="700" fill="#fff" stroke="#000" stroke-opacity=".7" stroke-width="3" paint-order="stroke">${on?z.n+' ':''}${z.sc}%</text></g>`});return s}
+const P={
+dash(){const z=[...Z].sort((a,b)=>b.sc-a.sc),n=Z.length*3,av=Z.reduce((a,x)=>a+x.so,0)/Z.length;
+return`<div class="g g4"><div class="card stat"><b>${Z.filter(x=>x.lv>=2).length}</b><span>Zones at High or Critical</span></div><div class="card stat"><b>${av.toFixed(0)}%</b><span>Average soil moisture (${S.sen?'sensors':'satellite estimate'})</span></div><div class="card stat"><b>${S.sen?n:0}/${n}</b><span>Sensor nodes online (simulated demo)</span></div><div class="card stat"><b>${S.sent.toLocaleString()}</b><span>SMS alerts sent</span></div></div>
+<div class="card" style="margin-bottom:12px"><h3><span class="live"></span>Live trend</h3>${spark()}</div><div class="card" style="margin-bottom:12px"><h3>Data sources <a href="/transparency.html" target="_blank" rel="noopener" style="font-size:12px;font-weight:500;margin-left:8px">How scores are made ↗</a></h3><div class="row">${[['Ground sensor nodes (LoRa)',S.sen],['Sentinel-1 InSAR',S.sat],['Sentinel-2 NDVI',S.sat],['GPM IMERG rainfall',S.sat],['DEM and geology (GIS)',1]].map(a=>`<span class="bd" style="background:${a[1]?'#16a34a':'#94a3b8'}">${a[0]}: ${a[1]?'live':'off'}</span>`).join('')}</div></div>
+<div class="card sc"><h3>Priority zones</h3><table><tr><th>Zone</th><th>State</th><th>Risk</th><th>Trend</th><th>Rain</th><th>Soil</th><th>InSAR</th><th>Slope</th></tr>${z.slice(0,8).map(x=>`<tr class="k" onclick="S.sel=${Z.indexOf(x)};go('map')"><td>${x.n}</td><td>${x.s}</td><td>${bd(x)} ${x.sc}%</td><td>${tr(x)}</td><td>${Math.round(x.rn)} mm</td><td>${x.so.toFixed(0)}%</td><td>${x.ins.toFixed(1)} mm</td><td>${x.sl}°</td></tr>`).join('')}</table><div class="note">Click a row to open it on the map.</div></div>`},
+map(){return`<div class="split"><div class="card"><h3>Data layers</h3><div class="row">${Object.keys(MAPS).filter(k=>pro()||k=='sat'||k=='rain').map(k=>`<button class="b" aria-pressed="${k==S.layer}" onclick="S.layer='${k}';render()">${MAPS[k]}</button>`).join('')}</div><div class="mapw"><canvas id="cv" width="${W}" height="${H}"></canvas><svg viewBox="0 0 600 400" role="img" aria-label="Map of 16 monitored zones in North East India">${mapSvg()}</svg></div><div class="row">${pro()?'<button class="b" aria-pressed="'+!!S.sn+'" onclick="S.sn=!S.sn;render()">Sensor nodes</button>':''}<button class="b" aria-pressed="${!!S.rv}" onclick="S.rv=!S.rv;render()">Rivers</button></div><div class="note">${LEG[S.layer]}${pro()?' Sensor nodes are coloured by soil moisture, from green (dry) to red (saturated).':''} Schematic map with simulated data.</div></div>${detail(Z[S.sel])}</div>`},
+sens(){const z=[...Z].sort((a,b)=>b.so-a.so);return`<div class="g g4"><div class="card stat"><b>${S.sen?Math.max(...Z.map(x=>x.so)).toFixed(0)+'%':'off'}</b><span>Wettest zone average</span></div><div class="card stat"><b>${S.sen?Math.min(...Z.map(x=>x.so)).toFixed(0)+'%':'off'}</b><span>Driest zone average</span></div><div class="card stat"><b>${S.sen?'48/48':'0/48'}</b><span>Nodes online</span></div></div>${S.sen?'':'<div class="warn">Ground sensors are off. Soil moisture comes from a coarser satellite estimate, so scores react later.</div>'}<div class="g g3">${z.map(x=>`<div class="card ${S.sen?'':'off'}"><h3>${x.n} ${bd(x)}</h3><div class="bar"><i style="width:${x.so}%;background:var(--ac)"></i></div><div class="note">Zone average ${x.so.toFixed(0)}%</div><div class="nd">${x.nodes.map((n,k)=>`<div>${'ABC'[k]}<b>${x.nd[k].toFixed(0)}%</b>${n.b}% batt</div>`).join('')}</div></div>`).join('')}</div>`},
+sat(){const z=Z[S.sel];return`<div class="card" style="margin-bottom:12px"><h3>Zone</h3><select id="zs" aria-label="Zone" onchange="S.sel=+this.value;render()">${Z.map((x,i)=>`<option value="${i}"${i==S.sel?' selected':''}>${x.n}</option>`).join('')}</select><div class="note">The four layers cover the whole region. ${S.sat?'Satellite feeds are live.':'Satellite feeds are off, so these layers are frozen.'}</div></div>
+<div class="mini">${['sat','ndvi','rain','insar'].map(k=>`<div class="card"><h3>${MAPS[k]}</h3><canvas id="m_${k}" width="${W}" height="${H}"></canvas></div>`).join('')}</div>
+<div class="card sc" style="margin-top:12px"><h3>${z.n}: readings and GIS terrain</h3><table><tr><th>Source</th><th>Measure</th><th>Value</th></tr><tr><td>GPM IMERG</td><td>Rainfall, 24 h</td><td>${S.sat?Math.round(z.rain*(1+S.l*5.5)*.92+3)+' mm':'off'}</td></tr><tr><td>Sentinel-2</td><td>Vegetation index</td><td>${S.sat?'NDVI '+z.ndvi.toFixed(2):'off'}</td></tr><tr><td>Sentinel-1</td><td>Ground movement</td><td>${S.sat?z.ins.toFixed(1)+' mm / 12 d':'off'}</td></tr><tr><td>DEM</td><td>Slope</td><td>${z.sl}°</td></tr><tr><td>Slide inventory</td><td>Past slides nearby</td><td>${z.h}</td></tr><tr><td>Road map</td><td>Exposure</td><td>${IN[z.inf]}, ${z.rd}</td></tr><tr><td>Population</td><td>Exposure level</td><td>${EX[z.ex]}</td></tr></table></div>`},
+alerts(){const z=Z[S.sel];return`<div class="split"><div class="card"><h3>Dispatch log</h3>${(S.sal||[]).length?'<div class="note" style="margin:0 0 6px">Server alerts (saved)</div>'+S.sal.slice(0,8).map(a=>`<div class="al" style="border-color:${LV[a.lv][1]}"><b>${a.t}</b> ${a.auto?'<span class="bd" style="background:#0ea5e9">AUTO</span> ':''}${Z[a.zi]?Z[a.zi].n:'zone '+a.zi}<br>${esc(a.m)}</div>`).join(''):''}${S.al.length?S.al.map(a=>`<div class="al" style="border-color:${LV[a.lv][1]}"><b>${a.t}</b> ${a.z}<br>${a.m}</div>`).join(''):'<div class="note">No alerts yet. Raise the storm intensity.</div>'}</div>
+<div class="card"><h3>Resident's phone</h3><div class="row">${[['en','English'],['hi','हिन्दी'],['as','অসমীয়া'],['bn','বাংলা']].map(a=>`<button class="b" aria-pressed="${S.lang==a[0]}" onclick="S.lang='${a[0]}';render()">${a[1]}</button>`).join('')}</div><div class="phone"><div class="sms"><small>LANDSAFE · ${z.n}</small>${MSG[S.lang]}</div></div><div class="row"><button class="b p" onclick="S.sent+=pop(Z[S.sel]);addA(Z[S.sel],'Test alert: SMS sent to '+pop(Z[S.sel]).toLocaleString()+' registered phones',2,1);sendSms(Z[S.sel],2);render()">Send test alert for ${z.n}</button></div><div class="note">Sample translations. Verify wording with the local disaster authority.</div></div></div>`}};
+const ACC={admin:{p:'admin123',r:'Admin'},officer:{p:'officer123',r:'Field Officer'},public:{p:'public123',r:'Public'}};
+const RP={Admin:['dash','map','sens','sat','alerts','rep','set'],'Field Officer':['dash','map','sens','sat','alerts','rep'],Public:['dash','map','alerts','rep']};
+const pro=()=>!!S.user&&S.user.r!='Public',ADV=['No action needed. Stay informed.','Be alert. Avoid steep slopes during heavy rain.','High risk. Avoid slopes and roads here and follow local authority instructions.','Critical risk. Move to a safe shelter now and follow local authority instructions.'];
+const tt=()=>new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}),lnk=m=>'sms:'+S.phone+'?&body='+encodeURIComponent(m);
+function demo(u){login(u,ACC[u].p)}
+function logout(){TOK='';S.user=null;S.pg='dash';$('lg').classList.remove('h');$('lu').focus()}
+function syncTop(){$('sen').setAttribute('aria-pressed',!!S.sen);$('sen').textContent='Ground sensors: '+(S.sen?'on':'off');$('sat').setAttribute('aria-pressed',!!S.sat);$('sat').textContent='Satellite: '+(S.sat?'on':'off');$('lv').setAttribute('aria-pressed',!!S.live);$('lv').textContent='Demo feed: '+(S.live?'on':'off')}
+function sendSms(z,lv){if(!S.phone)return;const m='LANDSAFE '+LV[lv][0]+': '+z.n+'. '+MSG[S.lang],o={t:tt(),lv,m,st:'Queued'};S.out.unshift(o);S.out=S.out.slice(0,10);
+const ep=S.ep||(TOK&&pro()?'/send':'');if(ep){fetch(ep,{method:'POST',headers:{'Content-Type':'application/json',...(TOK&&ep.startsWith('/')?{Authorization:'Bearer '+TOK}:{})},body:JSON.stringify({to:S.phone,message:m})}).then(r=>{o.st=r.ok?'Sent to '+S.phone:'Backend refused ('+r.status+')'}).catch(()=>{o.st='Backend not reachable, use the link to send from your phone';o.link=lnk(m)}).finally(()=>render())}
+else{o.st='Ready: tap the link to send from your phone';o.link=lnk(m)}}
+function spark(){const h=S.hist;if(h.length<2)return'<div class="note">Collecting live data…</div>';const pt=k=>h.map((p,i)=>(i/39*300).toFixed(1)+','+(68-p[k]*.66).toFixed(1)).join(' ');
+return`<svg class="spark" viewBox="0 0 300 70" preserveAspectRatio="none" role="img" aria-label="Live trend of highest zone risk and average soil moisture"><polyline points="${pt('m')}" fill="none" stroke="#dc2626" stroke-width="2"/><polyline points="${pt('s')}" fill="none" stroke="var(--ac)" stroke-width="2"/></svg><div class="note"><span style="color:#dc2626">━</span> Highest zone risk &nbsp; <span style="color:var(--ac)">━</span> Average soil moisture</div>`}
+const PUBLIC_I18N = {
+  en: {
+    statusTitle: 'Monitored Zone Status',
+    myArea: 'My Monitored Area',
+    safeBtn: "✓ I'm Safe",
+    helpBtn: '🆘 I Need Help',
+    textSms: 'Text advice to my phone',
+    zone: 'Zone', state: 'State', risk: 'Risk Level', why: 'Primary Trigger', whatToDo: 'What to do',
+    helpline: 'Emergency helpline: 112 (State Disaster Management Authority)',
+    adv: [
+      'No immediate action needed. Stay informed.',
+      'Be alert. Avoid steep slopes and road cuttings during heavy rain.',
+      'High risk. Avoid slopes and roads; follow authority instructions.',
+      'Critical risk. Move to safe shelter immediately; call 112 if trapped.'
+    ]
+  },
+  hi: {
+    statusTitle: 'सक्रिय क्षेत्र स्थिति',
+    myArea: 'मेरा निगरानी क्षेत्र',
+    safeBtn: '✓ मैं सुरक्षित हूँ',
+    helpBtn: '🆘 मुझे मदद चाहिए',
+    textSms: 'सलाह मेरे फ़ोन पर भेजें',
+    zone: 'क्षेत्र', state: 'राज्य', risk: 'जोखिम स्तर', why: 'कारण', whatToDo: 'क्या करें',
+    helpline: 'आपातकालीन हेल्पलाइन: 112 (राज्य आपदा प्रबंधन प्राधिकरण)',
+    adv: [
+      'तत्काल कार्रवाई की आवश्यकता नहीं है। सतर्क रहें।',
+      'सतर्क रहें। भारी बारिश के दौरान खड़ी ढलानों और सड़क कटानों से बचें।',
+      'उच्च जोखिम। ढलानों और पहाड़ी सड़कों से बचें; निर्देशों का पालन करें।',
+      'अति गंभीर जोखिम। तुरंत सुरक्षित आश्रय में जाएँ; निर्देशों का पालन करें।'
+    ]
+  },
+  as: {
+    statusTitle: 'সক্ৰিয় অঞ্চলৰ স্থিতি',
+    myArea: 'মোৰ নিৰীক্ষণ অঞ্চল',
+    safeBtn: '✓ মই সুৰক্ষিত',
+    helpBtn: '🆘 মোক সহায় লাগে',
+    textSms: 'পৰামৰ্শ মোৰ ফোনলৈ প্ৰেৰণ কৰক',
+    zone: 'অঞ্চল', state: 'ৰাজ্য', risk: 'বিপদৰ মাত্ৰা', why: 'কাৰণ', whatToDo: 'কৰণীয়',
+    helpline: 'জৰুৰীকালীন হেল্পলাইন: ১১২ (ৰাজ্যিক দুৰ্যোগ ব্যৱস্থাপনা)',
+    adv: [
+      'তাৎক্ষণিক কোনো ব্যৱস্থাৰ প্ৰয়োজন নাই। সজাগ থাকক।',
+      'সতৰ্ক থাকক। প্ৰচণ্ড বৰষুণৰ সময়ত থিয় পাহাৰীয়া ঢালৰ পৰা আঁতৰি থাকক।',
+      'উচ্চ বিপদ। পাহাৰীয়া পথ এৰক আৰু নিৰ্দেশনা মানি চলক।',
+      'চৰম বিপদ। পলম নকৰি সুৰক্ষিত আশ্ৰয়স্থললৈ যাওক; ১১২ ত যোগাযোগ কৰক।'
+    ]
+  },
+  bn: {
+    statusTitle: 'লাইভ এলাকার স্থিতি',
+    myArea: 'আমার নজরদারি এলাকা',
+    safeBtn: '✓ আমি নিরাপদ',
+    helpBtn: '🆘 আমার সাহায্য প্রয়োজন',
+    textSms: 'পরামর্শ আমার ফোনে পাঠান',
+    zone: 'এলাকা', state: 'রাজ্য', risk: 'ঝুঁকির মাত্রা', why: 'কারণ', whatToDo: 'করণীয়',
+    helpline: 'জরুরি হেল্পলাইন: ১১২ (দুর্যোগ ব্যবস্থাপনা কর্তৃপক্ষ)',
+    adv: [
+      'অবিলম্বে কোনো পদক্ষেপের প্রয়োজন নেই। সচেতন থাকুন।',
+      'সতর্ক থাকুন। ভারী বৃষ্টির সময় খাড়া পাহাড়ি ঢাল এড়িয়ে চলুন।',
+      'উচ্চ ঝুঁকি। পাহাড়ি ঢাল ও ঝুঁকিপূর্ণ রাস্তা এড়িয়ে চলুন; নির্দেশ মানুন।',
+      'মারাত্মক ঝুঁকি। অবিলম্বে নিরাপদ আশ্রয়ে যান; নির্দেশ অনুসরণ করুন।'
+    ]
+  }
+};
+function langBar(){return`<div class="row" style="margin-bottom:12px;justify-content:flex-end;align-items:center"><span class="note" style="margin:0 6px 0 0;font-weight:600">Language / ভাষা / भाषा:</span>${[['en','English'],['hi','हिन्दी'],['as','অসমীয়া'],['bn','বাংলা']].map(a=>`<button class="b" aria-pressed="${S.lang==a[0]}" onclick="S.lang='${a[0]}';render()">${a[1]}</button>`).join('')}</div>`}
+function pubD(){const z=[...Z].sort((a,b)=>b.sc-a.sc),L=PUBLIC_I18N[S.lang]||PUBLIC_I18N.en;
+return langBar()+`<div class="g g4"><div class="card stat"><b>${Z.filter(x=>x.lv>=2).length}</b><span>Zones at High or Critical</span></div><div class="card stat"><b>${Z.filter(x=>x.lv<2).length}</b><span>Zones at Low or Moderate</span></div></div><div class="card sc"><h3><span class="live"></span>${L.statusTitle}</h3><table><tr><th>${L.zone}</th><th>${L.state}</th><th>${L.risk}</th><th>${L.why}</th><th>${L.whatToDo}</th></tr>${z.map(x=>`<tr class="k" onclick="S.sel=${Z.indexOf(x)};go('map')"><td><b>${x.n}</b></td><td>${x.s}</td><td>${bd(x)}</td><td><span class="note" style="margin:0">${x.reasons?x.reasons[0]:'Normal conditions'}</span></td><td>${L.adv[x.lv]}</td></tr>`).join('')}</table><div class="note" style="margin-top:8px">${L.helpline}</div></div>`}
+function pubA(){const L=PUBLIC_I18N[S.lang]||PUBLIC_I18N.en;
+return`<div class="card"><h3>${L.statusTitle}</h3>${S.al.length?S.al.map(a=>`<div class="al" style="border-color:${LV[a.lv][1]}"><b>${a.t}</b> ${a.z}: ${LV[a.lv][0]}<br>${L.adv[a.lv]}</div>`).join(''):'<div class="note">No active alerts.</div>'}<div class="note">${L.helpline}</div></div>`}
+function mine(){const z=Z[S.user.zone],hot=z.lv>=2,L=PUBLIC_I18N[S.lang]||PUBLIC_I18N.en;
+return langBar()+(hot?`<div class="warn" style="border-color:${LV[z.lv][1]}"><b>${z.n}: ${LV[z.lv][0]} (${L.risk})</b><br>${L.adv[z.lv]}</div>`:'')+`<div class="card" style="margin-bottom:12px"><h3>${L.myArea}: ${z.n} (${z.s})</h3><p>${bd(z)} ${tr(z)} &nbsp;·&nbsp; <b>${Math.round(z.rn)} mm</b> rain, <b>${z.so.toFixed(0)}%</b> soil saturation</p><p style="font-weight:600;color:var(--tx)">${L.adv[z.lv]}</p><div style="background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;margin:10px 0"><small style="text-transform:uppercase;font-weight:700;color:var(--mu);display:block;margin-bottom:4px">Primary risk factors:</small><ul style="margin:0;padding-left:18px;font-size:12.5px">${(z.reasons||[]).map(r=>`<li>${esc(r)}</li>`).join('')}</ul></div><div class="row"><button class="b p btn-safe" onclick="chk('safe')">${L.safeBtn}</button><button class="b btn-help" onclick="chk('help')">${L.helpBtn}</button>${S.user.phone?`<a href="sms:${S.user.phone}?&body=${encodeURIComponent('LANDSAFE '+LV[z.lv][0]+': '+z.n+'. '+L.adv[z.lv])}">${L.textSms}</a>`:''}</div>${lastChk()}</div>`}
+window.rstSim=function(){clearInterval(S.tm);S.l=0;$('storm').value=0;S.al=[];S.sent=0;Z.forEach(z=>z.lv=0);update()};
+window.toggleLowBw=function(){document.body.classList.toggle('low-bw');const on=document.body.classList.contains('low-bw');const btn=$('bw');if(btn){btn.setAttribute('aria-pressed',on);btn.textContent='📶 Low-bandwidth: '+(on?'on':'off')}};
+function outbox(){return`<div class="card" style="margin-top:12px"><h3>SMS outbox (${S.out.length})</h3>${S.out.length?S.out.map(o=>`<div class="al" style="border-color:${LV[o.lv][1]}"><b>${o.t}</b> ${o.st}<br>${o.m}${o.link?`<br><a href="${o.link}">Open in Messages to send</a>`:''}</div>`).join(''):'<div class="note">No messages yet. Add your phone number under SMS Settings.</div>'}</div>`}
+P.set=()=>`<div class="split"><div class="card"><h3>Send alerts to my phone</h3><label for="ph">Phone number with country code</label><input id="ph" class="t" inputmode="tel" placeholder="+91XXXXXXXXXX" value="${S.phone}" oninput="S.phone=this.value.trim()"><label for="ep">SMS backend URL (optional)</label><input id="ep" class="t" placeholder="http://localhost:3000/send" value="${S.ep}" oninput="S.ep=this.value.trim()"><label><input type="checkbox" ${S.auto?'checked':''} onchange="S.auto=this.checked"> Send automatically when a zone reaches High or Critical</label><div class="row" style="margin-top:8px"><button class="b p" onclick="if(!S.phone)$('ph').focus();else{sendSms(Z[S.sel],2);go('alerts')}">Send test SMS</button></div></div><div class="card"><h3>How real-time SMS works</h3><p>This page runs in a sandbox, so it cannot call an SMS provider directly. Two options:</p><p><b>Tap to send.</b> Each alert lands in the SMS outbox with an Open in Messages link that fills in your phone's SMS app.</p><p><b>Fully automatic.</b> Run the sms-server.js file with your Twilio key, open this page from the downloaded file, and paste the backend URL here.</p><div class="note">Never put API keys in this page. Anyone can read them.</div></div></div>`;
+let LU={};try{LU=JSON.parse(localStorage.getItem('ls_users')||'{}')}catch(e){}
+const saveU=()=>{try{localStorage.setItem('ls_users',JSON.stringify(LU))}catch(e){}},esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';'),HZ=['Ground crack','Water seepage','Rockfall','Road blockage','Tilted trees or poles'];
+const fb=s=>{let a=0xdeadbeef,b=0x41c6ce57;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);a=Math.imul(a^c,2654435761);b=Math.imul(b^c,1597334677)}a=Math.imul(a^a>>>16,2246822507)^Math.imul(b^b>>>13,3266489909);b=Math.imul(b^b>>>16,2246822507)^Math.imul(a^a>>>13,3266489909);return'f'+(4294967296*(2097151&b)+(a>>>0)).toString(16)};
+async function hh(s){s='landsafe:'+s;try{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}}catch(e){}return fb(s)}
+const norm=v=>{v=v.replace(/[\s-]/g,'');return/^\d{10}$/.test(v)?'+91'+v:v};
+const fail=m=>{$('le').textContent=m||'Wrong username or password.'};
+function enter(u,r,o){S.user={n:u,r,name:o.name||u,zone:o.zone??2,phone:o.phone||''};S.pg='dash';if(r=='Public'){S.layer='sat';S.sel=S.user.zone}$('le').textContent='';$('se').textContent='';$('lp').value='';$('lg').classList.add('h');render()}
+const API=location.protocol.startsWith('http');let TOK='';
+async function ap(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json',...(TOK?{Authorization:'Bearer '+TOK}:{})},body:b?JSON.stringify(b):undefined});const j=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(j.error||('HTTP '+r.status)),{status:r.status});return j}
+async function syncAll(){if(!TOK)return;try{S.reps=await ap('GET','/api/reports');S.sal=await ap('GET','/api/alerts');if(pro()){S.checks=(await ap('GET','/api/checkins')).map(x=>({...x,z:Z[x.zi]?Z[x.zi].n:'zone '+x.zi}))}if(S.user&&S.user.r=='Admin'){const l=await ap('GET','/api/users');S.ul={};l.filter(x=>!['admin','officer','public'].includes(x.username)).forEach(x=>S.ul[x.username]={name:x.name,zone:x.zone,r:x.role})}Z.forEach((z,i)=>{z.bonus=Math.min(15,6*S.reps.filter(x=>x.zi==i&&x.st=='Verified').length)});update()}catch(e){if(e.status==401){TOK='';logout()}}}
+async function login(u,p){u=u.toLowerCase();if(API){try{const j=await ap('POST','/api/auth/login',{username:u,password:p});TOK=j.token;enter(j.user.n,j.user.r,j.user);syncAll();S.fu='/zone_metrics.json';setTimeout(()=>pullFeed(),700);if(!S.poll)S.poll=setInterval(syncAll,15000);return}catch(e){const a=ACC[u];if(a&&a.p===p){enter(u,a.r,{name:u});return}if(e.status)return fail(e.message)}}const a=ACC[u];if(a){if(a.p!==p)return fail();return enter(u,a.r,{})}const x=LU[u];if(!x||(x.h!==await hh(u+':'+p)&&x.h!==fb('landsafe:'+u+':'+p)))return fail();enter(u,x.r,x)}
+async function signup(){try{await signup0()}catch(x){$('se').textContent='Could not create the account: '+((x&&x.message)||x)}}
+async function signup0(){const n=$('sn').value.trim(),u=$('su').value.trim().toLowerCase(),p=$('sp').value,ph=norm($('sph').value),e=m=>{$('se').textContent=m};
+if(n.length<2)return e('Enter your name.');if(!/^[a-z0-9_]{3,20}$/.test(u))return e('Username: 3 to 20 letters, numbers or underscores.');if(ACC[u]||LU[u])return e('That username is taken.');if(p.length<8)return e('Password needs at least 8 characters.');if(ph&&!/^\+\d{10,15}$/.test(ph))return e('Phone must start with + and the country code.');
+if(API){try{const j=await ap('POST','/api/auth/signup',{name:n,username:u,password:p,phone:ph,zone:+$('sz').value});TOK=j.token;enter(j.user.n,j.user.r,j.user);syncAll();if(!S.poll)S.poll=setInterval(syncAll,15000);return}catch(x){if(x.status)return e(x.message)}}
+LU[u]={h:await hh(u+':'+p),name:n,phone:ph,zone:+$('sz').value,r:'Public'};saveU();enter(u,'Public',LU[u])}
+function tab(n){$('lf').style.display=n==1?'':'none';$('sf').style.display=n==2?'':'none';$('t1').setAttribute('aria-pressed',n==1);$('t2').setAttribute('aria-pressed',n==2)}
+const tr=z=>{const a=z.tr||[];if(a.length<4)return'';const d=a[a.length-1]-a[0],s=d>6?'▲▲':d>2?'▲':d<-6?'▼▼':d<-2?'▼':'●';return`<span style="color:${d>2?'#dc2626':d<-2?'#16a34a':'var(--mu)'}" title="Trend over the last few readings">${s}</span>`};
+const lastChk=()=>{const c=S.checks.find(x=>x.u==S.user.n);return c?`<div class="note">Last check-in ${c.t}: ${c.k=='safe'?'marked safe':'help requested, officers have been notified'}</div>`:''};
+function chk(k){if(TOK)ap('POST','/api/checkins',{kind:k}).catch(()=>{});S.checks.unshift({t:tt(),u:S.user.n,z:Z[S.user.zone].n,k});S.checks=S.checks.slice(0,20);render()}
+function banner(){const n=S.checks.filter(c=>c.k=='help'&&!c.d).length,p=S.reps.filter(r=>r.st=='Pending').length;return n||p?`<div class="warn">${n?`<b>${n} help request${n>1?'s':''}</b>`:''}${n&&p?' and ':''}${p?`<b>${p} citizen report${p>1?'s':''} awaiting review</b>`:''}. <a href="#" onclick="go('${n?'alerts':'rep'}');return false">Review</a></div>`:''}
+function checks(){return`<div class="card" style="margin-top:12px"><h3>Citizen check-ins (${S.checks.length})</h3>${S.checks.length?S.checks.map((c,i)=>`<div class="al" style="border-color:${c.k=='help'&&!c.d?'#dc2626':'#16a34a'}"><b>${c.t}</b> ${c.u} in ${c.z}: ${c.k=='safe'?'marked safe':c.d?'help request handled':'NEEDS HELP'}${c.k=='help'&&!c.d?` <button class="b" onclick="hand(${i})">Mark handled</button>`:''}</div>`).join(''):'<div class="note">No check-ins yet. Residents check in from their dashboard.</div>'}</div>`}
+function hand(i){const c=S.checks[i];c.d=1;if(TOK&&c.id)ap('PATCH','/api/checkins/'+c.id+'/handled').catch(()=>{});render()}
+function sendRep(){const zi=S.rz??S.user.zone,hz=S.rh||HZ[0],loc=()=>{S.reps.unshift({id:'LR-'+(1100+S.reps.length+1),zi,hz,u:S.user.n,t:tt(),st:'Pending'});render()};if(TOK)ap('POST','/api/reports',{zone:zi,hazard:hz}).then(r=>{S.reps.unshift(r);render()}).catch(loc);else loc()}
+function verify(i,ok){const r=S.reps[i];r.st=ok?'Verified':'Dismissed';if(TOK&&r.dbid)ap('PATCH','/api/reports/'+r.dbid,{status:r.st}).catch(()=>{});Z[r.zi].bonus=Math.min(15,6*S.reps.filter(x=>x.zi==r.zi&&x.st=='Verified').length);update()}
+function repPage(){const st=pro(),zi=S.rz??S.user.zone,rows=S.reps.map((r,i)=>[r,i]).filter(([r])=>st||r.u==S.user.n);
+const list=`<div class="card"><h3>${st?'Citizen reports':'My reports'} (${rows.length})</h3>${rows.length?rows.map(([r,i])=>`<div class="al" style="border-color:${r.st=='Verified'?'#dc2626':r.st=='Pending'?'#eab308':'#94a3b8'}"><b>${r.id}</b> ${Z[r.zi].n}: ${r.hz}<br><span class="note">${esc(r.u)} at ${r.t}: ${r.st}</span>${st&&r.st=='Pending'?`<div class="row" style="margin-top:6px"><button class="b p" onclick="verify(${i},1)">Verify</button><button class="b" onclick="verify(${i},0)">Dismiss</button></div>`:''}</div>`).join(''):'<div class="note">No reports yet.</div>'}</div>`;
+if(st)return list;
+return`<div class="split"><div class="card"><h3>Report what you see</h3><label for="rz">Area</label><select id="rz" onchange="S.rz=+this.value">${Z.map((x,i)=>`<option value="${i}"${i==zi?' selected':''}>${x.n}</option>`).join('')}</select><label for="rh">What did you notice?</label><select id="rh" onchange="S.rh=this.value">${HZ.map(h=>`<option${h==S.rh?' selected':''}>${h}</option>`).join('')}</select><div class="row" style="margin-top:8px"><button class="b p" onclick="sendRep()">Submit report</button></div><div class="note">Officers review reports. A confirmed report raises that area's risk score.</div></div>${list}</div>`}
+function users(){const L=TOK?(S.ul||{}):LU,ks=Object.keys(L);return`<div class="card" style="margin-top:12px"><h3>Registered accounts (${ks.length})</h3>${ks.length?ks.map(k=>`<div class="al" style="border-color:var(--ac)"><b>${esc(L[k].name)}</b> (${k}) in ${Z[L[k].zone].n}: ${L[k].r} <button class="b" onclick="setRole('${k}')">${L[k].r=='Public'?'Make Field Officer':'Make Public'}</button> <button class="b" onclick="delU('${k}')">Remove</button></div>`).join(''):'<div class="note">No sign-ups yet. New users can create an account on the login page.</div>'}</div>`}
+function setRole(k){if(TOK){const nr=S.ul[k].r=='Public'?'Field Officer':'Public';ap('PATCH','/api/users/'+k+'/role',{role:nr}).then(()=>{S.ul[k].r=nr;render()}).catch(()=>{});return}LU[k].r=LU[k].r=='Public'?'Field Officer':'Public';saveU();render()}
+function delU(k){if(TOK){ap('DELETE','/api/users/'+k).then(()=>{delete S.ul[k];render()}).catch(()=>{});return}delete LU[k];saveU();render()}
+const _d=P.dash,_a=P.alerts,_s=P.set;P.dash=()=>pro()?banner()+_d():mine()+pubD();P.alerts=()=>pro()?_a()+checks()+outbox():pubA();P.set=()=>_s()+users();P.rep=repPage;
+function render(){if(!S.user)return;if(!RP[S.user.r].includes(S.pg))S.pg='dash';document.body.dataset.pg=S.pg;const PH={dash:['⛰️','Landslide safety status','Live risk levels for monitored areas in North East India, with clear advice for each.',['Live status','Safety advice']],map:['🗺️','Risk map','Tap a zone to see its current risk level and what to do.',['Satellite view','Rainfall']]},h=pro()?HERO[S.pg]:(PH[S.pg]||HERO[S.pg]);
+$('nav').innerHTML=PG.filter(p=>RP[S.user.r].includes(p[0])).map(p=>`<button class="${p[0]==S.pg?'on':''}" onclick="go('${p[0]}')"><i>${p[2]}</i>${p[1]}</button>`).join('');
+$('pg').innerHTML=`<div class="hero">${S.pg=='dash'||S.pg=='map'||S.pg=='sens'?'<div class="rain"></div>':''}<div class="ic">${h[0]}</div><h1>${h[1]}</h1><p>${h[2]}</p><div class="chips">${h[3].map(c=>`<span>${c}</span>`).join('')}</div></div>${S.sen||S.sat?'':'<div class="warn">Both data sources are off. Only static GIS terrain is available, so live risk cannot be calculated.</div>'}`+P[S.pg]();
+$('who').innerHTML=S.user.n+' ('+S.user.r+')<br><button class="b" onclick="logout()">Sign out</button>';$('topb').style.display=pro()?'':'none';syncTop();
+if(S.pg=='map')draw(S.layer,$('cv'));if(S.pg=='sat')['sat','ndvi','rain','insar'].forEach(k=>draw(k,$('m_'+k)))}
+function go(p){if(S.user&&!RP[S.user.r].includes(p))return;S.pg=p;render();scrollTo(0,0)}
+$('storm').oninput=e=>{S.live=0;S.l=e.target.value/100;update()};
+$('sim').onclick=()=>{clearInterval(S.tm);S.live=0;S.l=0;S.tm=setInterval(()=>{S.l=Math.min(1,S.l+.02);$('storm').value=S.l*100;update();if(S.l>=1)clearInterval(S.tm)},170)};
+$('rst').onclick=()=>{clearInterval(S.tm);S.l=0;$('storm').value=0;S.al=[];S.sent=0;Z.forEach(z=>z.lv=0);update()};
+$('sen').onclick=()=>{S.sen=+!S.sen;update()};$('sat').onclick=()=>{S.sat=+!S.sat;update()};
+setInterval(()=>{if(!S.user)return;Z.forEach(z=>z.nodes.forEach(n=>n.j=(rnd()-.5)*1.6));
+if(S.live){if(Math.abs(S.tg-S.l)<.05||rnd()<.03)S.tg=.05+rnd()*.9;S.l=Math.max(0,Math.min(1,S.l+(S.tg-S.l)*.07+(rnd()-.5)*.02))}
+update();S.hist.push({m:Math.max(...Z.map(z=>z.sc)),s:Z.reduce((a,z)=>a+z.so,0)/Z.length});S.hist=S.hist.slice(-40);const hot=Z.filter(z=>z.lv>=2);if(hot.length&&rnd()<.15){const z=hot[Math.floor(rnd()*hot.length)];S.checks.unshift({t:tt(),u:'Resident '+(100+Math.floor(rnd()*900))+' (simulated)',z:z.n,k:rnd()<.25?'help':'safe'});S.checks=S.checks.slice(0,20)}},2000);
+$('lf').onsubmit=e=>{e.preventDefault();login($('lu').value.trim(),$('lp').value)};
+$('lv').onclick=()=>{S.live=+!S.live;syncTop()};$('lu').focus();$('sf').onsubmit=e=>{e.preventDefault();signup()};$('sz').innerHTML=Z.map((z,i)=>`<option value="${i}">${z.n}</option>`).join('');
+update();
+/* ===== Data connectors: satellite and GIS reference sources ===== */
+PG.splice(4,0,['src','Data Sources','⛁']);RP.Admin.splice(4,0,'src');RP['Field Officer'].splice(4,0,'src');
+HERO.src=['🛰️','Satellite and GIS data connections','Connect Sentinel-1, Sentinel-2, a digital elevation model, rainfall and landslide records. Anything not connected keeps its demo value, clearly labelled.',['Sentinel-1','Sentinel-2','Copernicus DEM','GPM / CHIRPS','Slide catalog']];
+const SRC=[
+{n:'Sentinel-1 SAR',p:'COPERNICUS/S1_GRD; displacement from InSAR (ASF HyP3 or similar)',f:'Ground movement',r:'10 m, 6 to 12 days',k:'iv'},
+{n:'Sentinel-2 optical',p:'COPERNICUS/S2_SR_HARMONIZED, NDVI from B8 and B4',f:'Vegetation loss',r:'10 m, 5 days',k:'nv'},
+{n:'Copernicus DEM / SRTM',p:'Copernicus GLO-90 (live via Open-Meteo); SRTM 30 m in the pipeline',f:'Slope, elevation',r:'30 to 90 m, static',k:'sl'},
+{n:'GPM IMERG / CHIRPS',p:'Live stand-in: Open-Meteo precipitation. GPM and CHIRPS via the feed',f:'Rainfall',r:'0.1° half-hourly, 0.05° daily',k:'rain'},
+{n:'Historical landslide records',p:'NASA Global Landslide Catalog (COOLR), CSV import',f:'Past slides, terrain multiplier',r:'Event points, archive',k:'h'}];
+const LOG=[],stamp=()=>new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+const lg=(m,ok)=>{LOG.unshift({t:stamp(),m,ok});LOG.length=Math.min(LOG.length,12);if(S.pg=='src')render()};
+const mark=(z,k,s)=>{z.live[k]={s,t:stamp()}},liveN=k=>Z.filter(z=>z.live[k]).length;
+const realMode=()=>{clearInterval(S.tm);S.live=0;S.l=0;S.tg=0;S.al=[];S.sent=0;Z.forEach(z=>z.lv=0)};
+async function getJ(u){const c=new AbortController(),t=setTimeout(()=>c.abort(),15000);try{const r=await fetch(u,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(t)}}
+function csv(t){const rows=[];let r=[],c='',q=0;for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch=='"'){if(t[i+1]=='"'){c+='"';i++}else q=0}else c+=ch}else if(ch=='"')q=1;else if(ch==','){r.push(c);c=''}else if(ch=='\n'||ch=='\r'){if(ch=='\r'&&t[i+1]=='\n')i++;r.push(c);c='';if(r.length>1||r[0]!=='')rows.push(r);r=[]}else c+=ch}r.push(c);if(r.length>1||r[0]!=='')rows.push(r);if(!rows.length)return[];const h=rows.shift().map(x=>x.trim().toLowerCase());return rows.map(a=>Object.fromEntries(h.map((k,i)=>[k,(a[i]||'').trim()])))}
+const hav=(a,b,c,d)=>{const r=x=>x*Math.PI/180,s=Math.sin(r(c-a)/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(r(d-b)/2)**2;return 12742*Math.asin(Math.sqrt(s))};
+
+/* Copernicus GLO-90 elevations (served by Open-Meteo, no key). Slope from five points around each zone. */
+async function connDEM(){lg('Requesting Copernicus DEM elevations…',1);const d=.005,pts=[];
+D.forEach(a=>[[0,0],[0,d],[0,-d],[d,0],[-d,0]].forEach(o=>pts.push([a[2]+o[0],a[3]+o[1]])));
+try{const j=await getJ('https://api.open-meteo.com/v1/elevation?latitude='+pts.map(p=>p[0].toFixed(4)).join(',')+'&longitude='+pts.map(p=>p[1].toFixed(4)).join(','));const e=j.elevation;if(!e||e.length!=pts.length)throw new Error('unexpected response');
+Z.forEach((z,i)=>{const b=i*5,m=2*d*111320,dy=(e[b+3]-e[b+4])/m,dx=(e[b+1]-e[b+2])/(m*Math.cos(D[i][2]*Math.PI/180)),s=Math.atan(Math.hypot(dx,dy))*180/Math.PI;z.el=e[b];z.sl=Math.round(Math.max(3,Math.min(60,s)));mark(z,'sl','Copernicus DEM')});
+realMode();lg('DEM connected: elevation and slope updated for all zones.',1);update()}catch(x){lg('DEM not reachable ('+x.message+'). Slope stays at the demo value.',0)}}
+
+/* Rainfall, last 24 h. Open-Meteo is a stand-in; GPM IMERG and CHIRPS come through the feed. */
+async function connRain(){lg('Requesting rainfall…',1);
+try{const j=await getJ('https://api.open-meteo.com/v1/forecast?latitude='+D.map(a=>a[2]).join(',')+'&longitude='+D.map(a=>a[3]).join(',')+'&hourly=precipitation&past_days=1&forecast_days=1&timezone=UTC');const a=Array.isArray(j)?j:[j];if(a.length!=Z.length)throw new Error('unexpected response');
+const now=new Date().toISOString().slice(0,13);
+Z.forEach((z,i)=>{const h=a[i].hourly,k0=h.time.findIndex(t=>t.slice(0,13)==now),k=k0<0?Math.min(23,h.time.length-1):k0,s=h.precipitation.slice(Math.max(0,k-23),k+1).reduce((x,v)=>x+(v||0),0);z.rain=Math.round(s*10)/10;mark(z,'rain','Open-Meteo precipitation')});
+realMode();lg('Rainfall connected: 24 h totals updated (Open-Meteo stand-in).',1);update()}catch(x){lg('Rainfall not reachable ('+x.message+'). Rainfall stays at the demo value.',0)}}
+
+/* Zone feed: rain_mm_24h, ndvi, insar_mm, slope_deg, elevation_m, past_slides, matched on zone name. */
+function applyFeed(rows,label){let n=0;rows.forEach(r=>{const i=Z.findIndex(z=>z.n.toLowerCase()==String(r.zone||'').trim().toLowerCase());if(i<0)return;const z=Z[i],num=k=>r[k]!==undefined&&r[k]!==null&&r[k]!==''&&isFinite(+r[k])?+r[k]:null;n++;let v;
+if((v=num('rain_mm_24h'))!=null){z.rain=Math.max(0,v);mark(z,'rain',r.rain_source||'GPM / CHIRPS feed')}
+if((v=num('ndvi'))!=null){z.nv=Math.max(-.1,Math.min(1,v));mark(z,'nv','Sentinel-2 feed')}
+if((v=num('insar_mm'))!=null){z.iv=Math.max(0,v);mark(z,'iv','Sentinel-1 feed')}
+if((v=num('slope_deg'))!=null){z.sl=Math.max(1,Math.min(70,v));mark(z,'sl','DEM feed')}
+if((v=num('elevation_m'))!=null)z.el=v;
+if((v=num('soil_pct'))!=null){z.soil=Math.max(5,Math.min(95,v));mark(z,'so','Open-Meteo soil moisture')}
+if((v=num('past_slides'))!=null){z.h=Math.max(0,Math.round(v));mark(z,'h','Slide catalog feed')}});
+if(!n)throw new Error('no row matched a zone name');realMode();lg(label+': '+n+' zone(s) updated.',1);update()}
+async function pullFeed(){const u=(S.fu||'').trim();if(!u)return $('fu').focus();try{const j=await getJ(u);applyFeed(Array.isArray(j)?j:j.zones||[],'Feed')}catch(x){lg('Feed failed: '+x.message,0)}}
+async function fileFeed(f){if(!f)return;try{const t=await f.text();let rows;if(/\.json$/i.test(f.name)){const j=JSON.parse(t);rows=Array.isArray(j)?j:j.zones||[]}else rows=csv(t);applyFeed(rows,f.name)}catch(x){lg(f.name+': '+x.message,0)}}
+
+/* Historical landslide catalog: count events within 25 km of each zone. */
+async function fileCat(f){if(!f)return;try{const R=csv(await f.text()).map(r=>[parseFloat(r.latitude||r.lat),parseFloat(r.longitude||r.lon||r.lng)]).filter(p=>isFinite(p[0])&&isFinite(p[1]));if(!R.length)throw new Error('needs latitude and longitude columns');
+Z.forEach((z,i)=>{z.h=R.filter(p=>hav(D[i][2],D[i][3],p[0],p[1])<=25).length;mark(z,'h','Landslide catalog')});realMode();lg(f.name+': '+R.length+' events read, counted within 25 km of each zone.',1);update()}catch(x){lg(f.name+': '+x.message,0)}}
+
+function resetSrc(){Z.forEach((z,i)=>{z.rain=D[i][4];z.sl=D[i][6];z.h=D[i][7];z.nv=z.iv=z.el=undefined;z.live={}});lg('All sources back to demo values.',1);update()}
+function tpl(){const t='zone,rain_mm_24h,ndvi,insar_mm,slope_deg,elevation_m,past_slides\n'+Z.map(z=>z.n+',,,,,,').join('\n')+'\n',a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='landsafe_zone_feed_template.csv';a.click()}
+
+const PV=(z,k)=>{const l=z.live[k];return l?`<span class="bd" style="background:#16a34a" title="${esc(l.s)}, ${l.t}">live</span>`:'<span class="bd" style="background:#94a3b8">demo</span>'};
+const srcStatus=s=>{const n=liveN(s.k);return n?`<span class="bd" style="background:#16a34a">${n}/${Z.length} live</span>`:'<span class="bd" style="background:#94a3b8">demo data</span>'};
+window.runBacktestUI=async function(){const el=$('bt_res');if(!el)return;el.textContent='Running reference scenarios…';
+try{const r=window.SCM?SCM.runBacktest():await fetch('/api/backtest').then(x=>x.json());
+el.innerHTML=`<b>${r.hits}/${r.hits+r.misses}</b> high-risk scenarios flagged, <b>${r.falseAlarms}/${r.falseAlarms+r.correctQuiet}</b> calm scenarios falsely flagged.<br><span class="note">${esc(r.note)}</span><table style="margin-top:8px"><tr><th>Scenario</th><th>Expected</th><th>Score</th><th>Result</th></tr>${r.scenarios.map(x=>`<tr><td>${esc(x.name)}</td><td>${x.expect}</td><td>${x.score}% ${x.level}</td><td>${x.ok?'✔':'✖'}</td></tr>`).join('')}</table>`}
+catch(e){el.textContent='Could not run the check: '+e.message}};
+P.src=()=>`<div class="card sc" style="margin-bottom:12px"><h3>Connected sources</h3><table><tr><th>Source</th><th>Dataset</th><th>Feeds</th><th>Resolution, revisit</th><th>Status</th></tr>${SRC.map(s=>`<tr><td><b>${s.n}</b></td><td>${s.p}</td><td>${s.f}</td><td>${s.r}</td><td>${srcStatus(s)}</td></tr>`).join('')}</table><div class="note">Zone scores use the values in the table at the bottom. The raster layers on the map pages stay schematic. Ground soil-moisture nodes are still simulated until real ESP32 data is wired in.</div></div>
+<div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,rgba(14,165,233,0.06),rgba(56,189,248,0.03));border:1px solid rgba(14,165,233,0.3)">
+<h3>🧪 Explainable risk model & scenario check</h3>
+<p>Our scoring model implements empirical slope-adjusted rainfall intensity-duration thresholds: <code>I_crit = max(25, 75 - (slope - 15) * 0.8) mm/24h</code>, volumetric soil liquefaction thresholds (&ge;85%), and Sentinel-1 InSAR surface displacement (demo values until a feed is connected).</p>
+<div class="row" style="margin-bottom:8px">
+<button class="b p" onclick="runBacktestUI()">Run scenario check</button>
+<span class="note">Runs the model on 12 labelled reference scenarios. This checks consistency; it is not an accuracy claim.</span>
+</div>
+<div id="bt_res" style="background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;font-size:13px">
+Press the button to run the check.
+</div>
+</div>
+<div class="split" style="margin-bottom:12px"><div class="card"><h3>Quick connect (no account needed)</h3><div class="row"><button class="b p" onclick="connDEM()">Connect Copernicus DEM</button><button class="b p" onclick="connRain()">Connect rainfall</button><button class="b" onclick="resetSrc()">Back to demo data</button></div><p>DEM: elevation from Copernicus GLO-90, slope calculated from five points around each zone.</p><p>Rainfall: precipitation over the last 24 hours from Open-Meteo. It stands in for GPM or CHIRPS, which come through the feed.</p><div class="note">Needs internet. Connecting real data switches the live simulation off and resets storm intensity to 0, so scores show real conditions. Raise the slider for a what-if on top.</div></div>
+<div class="card"><h3>Historical landslide records</h3><label for="fc">NASA Global Landslide Catalog CSV</label><input id="fc" class="t" type="file" accept=".csv" onchange="fileCat(this.files[0])"><div class="note">Needs latitude and longitude columns. Events within 25 km of each zone are counted and replace the demo slide count, which raises or lowers the terrain multiplier.</div></div></div>
+<div class="split" style="margin-bottom:12px"><div class="card"><h3>Satellite feed (Sentinel-1, Sentinel-2, GPM, CHIRPS)</h3><label for="fu">Feed URL (JSON from your backend, CORS enabled)</label><input id="fu" class="t" placeholder="https://your-server/zone_metrics.json" value="${esc(S.fu||'')}" oninput="S.fu=this.value.trim()"><div class="row"><button class="b p" onclick="pullFeed()">Fetch feed</button><button class="b" onclick="tpl()">Download CSV template</button></div><label for="ff" style="margin-top:8px">Or load a file (CSV or JSON)</label><input id="ff" class="t" type="file" accept=".csv,.json" onchange="fileFeed(this.files[0])"><div class="note">Columns: zone, rain_mm_24h, ndvi, insar_mm, slope_deg, elevation_m, past_slides. Empty cells keep the demo value. When this console is served by the LANDSAFE backend, rainfall, soil moisture, elevation, slope and past-slide counts are filled in automatically from Open-Meteo and the NASA Global Landslide Catalog. NDVI and InSAR stay at demo values until you add a feed.</div></div>
+<div class="card"><h3>Connection log</h3>${LOG.length?LOG.map(l=>`<div class="al" style="border-color:${l.ok?'#16a34a':'#dc2626'}"><b>${l.t}</b> ${esc(l.m)}</div>`).join(''):'<div class="note">Nothing connected yet.</div>'}</div></div>
+<div class="card sc"><h3>Values used for scoring</h3><table><tr><th>Zone</th><th>Elevation</th><th>Slope</th><th>Rain 24 h</th><th>NDVI</th><th>Ground movement</th><th>Past slides</th><th>Risk</th></tr>${Z.map(z=>`<tr><td>${z.n}</td><td>${z.el!=null?Math.round(z.el)+' m':'n/a'}</td><td>${z.sl}° ${PV(z,'sl')}</td><td>${Math.round(z.rain*10)/10} mm ${PV(z,'rain')}</td><td>${z.ndvi.toFixed(2)} ${PV(z,'nv')}</td><td>${z.ins.toFixed(1)} mm ${PV(z,'iv')}</td><td>${z.h} ${PV(z,'h')}</td><td>${bd(z)} ${z.sc}%</td></tr>`).join('')}</table><div class="note">Green live badges show which values came from a connected source. Hover a badge for the source and time.</div></div>`;
+Z.forEach(z=>z.live=z.live||{});
+
+/* ===== Alert range: safety steps, wider warning ring, ongoing area status ===== */
+(function(){
+const $=id=>document.getElementById(id);
+const ZN=Z.map(z=>z.n);
+let seed=7;const rnd=()=>(seed=seed*16807%2147483647)/2147483647;
+const V=Array.from({length:70},()=>({d:.5+Math.sqrt(rnd())*21,a:rnd()*6.283,p:40+Math.round(rnd()*560),al:null}));
+const A={z:8,r:5,m:2,on:0,t:0,sm:94,mv:14,rain:1,auto:0,lang:'en',log:[],feed:[]};
+const ext=()=>+(A.r*A.m).toFixed(1),ring=v=>v.d<=A.r?'c':v.d<=ext()?'b':'o',f=n=>n.toLocaleString();
+const st=()=>{const c=A.mv>3||A.sm>85?'unsafe':A.mv>1||A.sm>70?'assess':'safe';return{c,b:c=='unsafe'?'ready':c=='assess'?'watch':'safe'}};
+const C={unsafe:'var(--core)',assess:'var(--buf)',safe:'var(--ok)',ready:'var(--buf)',watch:'var(--buf)'};
+const LB={unsafe:'Not safe to live here',assess:'Under assessment: stay out',safe:'Safe to live',ready:'Stay alert and be ready',watch:'Danger easing: stay ready'};
+const T={en:{pre:'UPDATE +{t} h, {z}: ',
+pc:'LANDSAFE ALERT: A landslide is confirmed near {z}. You are inside the {r} km danger zone. 1) Leave now on foot, moving sideways out of the slide path to high, stable ground. 2) Do not walk down streams or gullies. 3) Do not go back for belongings. 4) Help children and elders. Call 112 if trapped.',
+pb:'LANDSAFE ALERT: A landslide is confirmed within {r} km of {z}. Danger may spread out to {e} km, and you are inside that range. Be ready: 1) Keep shoes, torch, phone and documents together. 2) Move away from steep slopes, road cuttings and streams. 3) Cracks, muddy water or tilting trees mean leave at once. 4) Wait for our next update.',
+uc:{unsafe:'This area is NOT safe to live in. Do not return home. Stay at the relief camp.',assess:'Still under assessment. Do not return yet, officers are checking the slopes.',safe:'Declared SAFE to return. Report any new cracks or seepage.'},
+ub:{ready:'Stay alert and be ready to move. This area is not yet declared safe.',watch:'Danger is easing. Stay ready; you may stay home with caution.',safe:'This area is SAFE to live in. Normal life can resume.'}},
+hi:{pre:'अपडेट +{t} घंटे, {z}: ',
+pc:'लैंडसेफ चेतावनी: {z} के पास भूस्खलन की पुष्टि हुई है। आप {r} किमी के खतरे वाले क्षेत्र में हैं। 1) तुरंत पैदल निकलें, भूस्खलन के रास्ते से किनारे होकर ऊँची, मज़बूत ज़मीन पर जाएँ। 2) नालों या खड्डों में नीचे न उतरें। 3) सामान लेने वापस न जाएँ। 4) बच्चों और बुज़ुर्गों की मदद करें। फँस जाएँ तो 112 पर कॉल करें।',
+pb:'लैंडसेफ चेतावनी: {z} से {r} किमी के भीतर भूस्खलन की पुष्टि हुई है। खतरा {e} किमी तक फैल सकता है और आप उसी दायरे में हैं। तैयार रहें: 1) जूते, टॉर्च, फ़ोन और कागज़ात साथ रखें। 2) तीखी ढलानों, सड़क कटानों और नालों से दूर रहें। 3) दरारें, गंदा पानी या झुकते पेड़ दिखें तो तुरंत निकलें। 4) अगले अपडेट का इंतज़ार करें।',
+uc:{unsafe:'यह क्षेत्र रहने के लिए सुरक्षित नहीं है। घर न लौटें, राहत शिविर में रहें।',assess:'जाँच जारी है। अभी वापस न लौटें, अधिकारी ढलानों की जाँच कर रहे हैं।',safe:'क्षेत्र लौटने के लिए सुरक्षित घोषित। नई दरारें दिखें तो रिपोर्ट करें।'},
+ub:{ready:'सतर्क रहें और निकलने के लिए तैयार रहें। क्षेत्र अभी सुरक्षित घोषित नहीं है।',watch:'खतरा कम हो रहा है। तैयार रहें, सावधानी से घर पर रह सकते हैं।',safe:'क्षेत्र रहने के लिए सुरक्षित है। सामान्य जीवन शुरू कर सकते हैं।'}}};
+const fill=s=>s.replace(/{z}/g,ZN[A.z]).replace(/{r}/g,A.r).replace(/{e}/g,ext()).replace(/{t}/g,A.t);
+const num=x=>x.replace(/ (?=\d\) )/g,'\n').replace(/^(\d)\) /gm,'$1. '),msg=(kind,k)=>{const L=T[A.lang];return kind=='p'?num(fill(k=='c'?L.pc:L.pb)):fill(L.pre+(k=='c'?L.uc:L.ub)[st()[k]])};
+
+function send(kind){['c','b'].forEach(k=>{const vs=V.filter(v=>ring(v)==k&&(kind=='u'||v.al!==k));if(!vs.length)return;vs.forEach(v=>v.al=k);A.log.unshift({t:A.t,k,kind,n:vs.length,p:vs.reduce((a,v)=>a+v.p,0),m:msg(kind,k)})});A.log=A.log.slice(0,10)}
+const feed=()=>{A.feed.unshift({t:A.t,...st(),r:A.r,e:ext()});A.feed=A.feed.slice(0,8)};
+function doConfirm(){A.on=1;A.sd=0;A.t=0;A.sm=94;A.mv=14;A.log=[];A.feed=[];V.forEach(v=>v.al=null);send('p');feed();note('Landslide confirmed near '+ZN[A.z]+': safety steps sent to '+f(people())+' people within '+ext()+' km',3);refresh()}
+function tick(){if(!A.on)return;A.t+=3;A.sm=Math.max(40,Math.min(100,A.sm+(A.rain?2:-4)));A.mv=+(A.rain?A.mv*1.04:A.mv*.62).toFixed(1);feed();send('u');if(st().c=='safe'&&!A.sd){A.sd=1;note('Danger zone declared safe to live in after '+A.t+' h',0)}refresh()}
+function widen(){A.r=Math.min(12,A.r+2);if(A.on){send('p');note('Danger range widened to '+A.r+' km, warning range now '+ext()+' km',2)}lab()}
+function reset(){A.on=0;A.t=0;A.sm=94;A.mv=14;A.log=[];A.feed=[];V.forEach(v=>v.al=null);refresh()}
+
+function map(){const vr=Math.max(12,ext()*1.12),k=190/vr,s=st();
+let h='<svg viewBox="0 0 600 400" role="img" aria-label="Map of villages inside and outside the danger rings">';
+h+=`<circle cx="300" cy="200" r="${ext()*k}" fill="var(--buf)" fill-opacity=".13" stroke="var(--buf)" stroke-width="2" stroke-dasharray="6 5"/>`;
+h+=`<circle cx="300" cy="200" r="${A.r*k}" fill="var(--core)" fill-opacity=".2" stroke="var(--core)" stroke-width="2"/>`;
+V.forEach(v=>{if(v.d>vr)return;const x=300+Math.cos(v.a)*v.d*k,y=200+Math.sin(v.a)*v.d*k,g=ring(v),col=g=='o'?'var(--gr)':A.on?C[s[g]]:g=='c'?'var(--core)':'var(--buf)';
+h+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(2.5+Math.sqrt(v.p)/10).toFixed(1)}" fill="${col}" fill-opacity="${g=='o'?.55:.95}" stroke="var(--card)" stroke-width="1"/>`});
+h+=`<path d="M300 187l11 20h-22z" fill="var(--tx)"/><text x="300" y="${Math.max(14,200-A.r*k-6)}" text-anchor="middle">danger ${A.r} km</text><text x="300" y="${Math.max(14,200-ext()*k+15)}" text-anchor="middle">warning ${ext()} km</text></svg>`;return h}
+
+function rng(){const grp=k=>{const a=V.filter(v=>ring(v)==k);return[a.length,a.reduce((x,v)=>x+v.p,0)]},[c,b,o]=['c','b','o'].map(grp);
+return `<h3>Who gets alerted</h3><table><tr><th>Ring</th><th>Reach</th><th>Villages</th><th>People</th><th>Message</th></tr>
+<tr><td><i class="ar-dot" style="background:var(--core)"></i>Confirmed danger</td><td>0 to ${A.r} km</td><td>${c[0]}</td><td>${f(c[1])}</td><td>Leave now</td></tr>
+<tr><td><i class="ar-dot" style="background:var(--buf)"></i>Wider warning</td><td>${A.r} to ${ext()} km</td><td>${b[0]}</td><td>${f(b[1])}</td><td>Be ready</td></tr>
+<tr><td><i class="ar-dot" style="background:var(--gr)"></i>Outside</td><td>beyond ${ext()} km</td><td>${o[0]}</td><td>${f(o[1])}</td><td>No alert</td></tr></table>
+<p>Danger is confirmed out to <b>${A.r} km</b>, but a slide can spread past what sensors have confirmed. So the <b>${f(b[1])} people</b> between ${A.r} and ${ext()} km are warned now, before the danger reaches them.</p>
+<p class="note">Widening the range, or moving either slider after a slide is confirmed, sends the right message to every village that newly falls inside a ring.</p>`}
+
+function pre(){const ph=(k,t)=>{const L=msg('p',k).split('\n');return `<div class="phone"><small class="note">${A.on?'Sent to':'Preview for'} ${t}</small><div class="sms">${L[0]}</div>${L.slice(1).map(x=>`<div class="sms">${x}</div>`).join('')}</div>`};
+return `<h3>Safety steps sent to people nearby</h3><div class="row">${[['en','English'],['hi','हिन्दी']].map(l=>`<button class="b" aria-pressed="${A.lang==l[0]}" onclick="AR.lang('${l[0]}')">${l[1]}</button>`).join('')}<span class="note">A live system sends in each phone’s language, including Assamese and Bengali.</span></div>
+<div class="ar-g2e">${ph('c','people inside the '+A.r+' km danger range')}${ph('b','people between '+A.r+' and '+ext()+' km')}</div>`}
+
+function sta(){if(!A.on)return '<h3>Is the area safe to live in?</h3><p class="note">No landslide confirmed yet. Confirm one above to start sending safety steps and regular status updates.</p>';
+const s=st(),tile=(k,t)=>`<div class="ar-tile" style="border-left:6px solid ${C[s[k]]}"><b>${LB[s[k]]}</b><span class="note">${t}</span></div>`;
+return `<h3>Is the area safe to live in?</h3><div class="ar-kp"><div>Since the slide<b>+${A.t} h</b></div><div>Soil moisture<b>${A.sm}%</b></div><div>Ground movement<b>${A.mv} mm/day</b></div></div>
+<div class="ar-g2e" style="margin-top:0">${tile('c','Inside '+A.r+' km')}${tile('b',A.r+' to '+ext()+' km')}</div>
+${pro()&&A.rain&&A.mv>=16?`<div class="warn"><b>Ground is still moving and rain continues.</b> The slide may grow past ${A.r} km.<br><button class="b p" onclick="AR.widen()">Widen danger range by 2 km</button></div>`:''}
+<h3 style="margin-top:14px">Updates sent every 3 hours</h3>${A.feed.map(x=>`<div class="al" style="border-color:${C[x.c]}"><b>+${x.t} h</b> inside ${x.r} km: ${LB[x.c]}<br>${x.r} to ${x.e} km: ${LB[x.b]}</div>`).join('')}`}
+
+function out(){return `<h3>Messages sent (${A.log.length})</h3>`+(A.log.length?A.log.map(l=>`<div class="al" style="border-color:${l.k=='c'?'var(--core)':'var(--buf)'}"><b>+${l.t} h, ${l.kind=='p'?'safety steps':'status update'}</b> to ${l.n} villages, ${f(l.p)} people (${l.k=='c'?'danger range':'wider warning'})<br><span class="note">${l.m.slice(0,115)}…</span></div>`).join(''):'<p class="note">Nothing sent yet.</p>')}
+
+
+const people=()=>V.filter(v=>ring(v)!='o').reduce((a,v)=>a+v.p,0),note=(m,lv)=>addA(Z[A.z],m,lv);
+function refresh(){[['ar_map',map],['ar_rng',rng],['ar_pre',pre],['ar_sta',sta],['ar_out',out]].forEach(([i,fn])=>{const e=$(i);if(e)e.innerHTML=fn()})}
+function lab(){const a=$('ar_rv'),b=$('ar_mv'),s=$('ar_rs');if(a)a.textContent=A.r+' km';if(b)b.textContent='×'+A.m.toFixed(1)+' = '+ext()+' km';if(s)s.value=A.r;refresh()}
+function page(){const z=Z[A.z];
+if(!pro())return `<div class="split"><div class="card" id="ar_sta">${sta()}</div><div class="card" id="ar_pre">${pre()}</div></div>`;
+const ctl=`<div class="card ar-ctl"><label>Landslide near<select id="ar_zs" onchange="AR.zone(this.value)">${Z.map((x,i)=>`<option value="${i}"${i==A.z?' selected':''}>${x.n}</option>`).join('')}</select><span class="note">Live risk now: ${bd(z)} ${z.sc}%</span></label>
+<label>Confirmed danger range <b id="ar_rv">${A.r} km</b><input id="ar_rs" type="range" min="1" max="12" step="1" value="${A.r}" oninput="AR.r(this.value)" onchange="AR.chg()" aria-label="Confirmed danger range in km"></label>
+<label>Also warn people out to <b id="ar_mv">×${A.m.toFixed(1)} = ${ext()} km</b><input type="range" min="1.2" max="3" step="0.1" value="${A.m}" oninput="AR.m(this.value)" onchange="AR.chg()" aria-label="Warning range multiplier"></label>
+<div class="row" style="grid-column:1/-1"><button class="b p" onclick="AR.confirm()">Confirm landslide and alert</button><button class="b" onclick="AR.tick()">Next update (+3 h)</button><button class="b" onclick="AR.widen()">Widen danger range by 2 km</button>
+<label class="row"><input type="checkbox" ${A.rain?'checked':''} onchange="AR.rain(this.checked)"> Rain continues</label><label class="row"><input type="checkbox" ${A.auto?'checked':''} onchange="AR.auto(this.checked)"> Update every 3 s</label><button class="b" onclick="AR.reset()">Reset</button></div></div>`;
+return ctl+`<div class="ar-split" style="margin-bottom:12px"><div class="card"><div class="ar-mapw" id="ar_map">${map()}</div><div class="note" style="margin-top:8px">Triangle is the landslide. Red ring: confirmed danger range. Dashed amber ring: wider warning range. Each dot is a village, sized by population. After a slide is confirmed, dot colours show that village’s current safety status.</div></div><div class="card sc" id="ar_rng">${rng()}</div></div>
+<div class="card" id="ar_pre" style="margin-bottom:12px">${pre()}</div><div class="split"><div class="card" id="ar_sta">${sta()}</div><div class="card" id="ar_out">${out()}</div></div>`}
+setInterval(()=>{if(A.auto)tick()},3000);
+window.AR={page,confirm:doConfirm,tick,widen,reset,zone:v=>{A.z=+v;refresh()},r:v=>{A.r=+v;lab()},m:v=>{A.m=+v;lab()},chg:()=>{if(A.on){send('p');refresh()}},rain:c=>{A.rain=+c},auto:c=>{A.auto=+c},lang:l=>{A.lang=l;refresh()}};
+})();
+PG.splice(6,0,['rng','Alert Range','◎']);['Admin','Field Officer','Public'].forEach(r=>RP[r].push('rng'));
+HERO.rng=['🚨','Alert range and area safety','Safety steps for people nearby, a wider warning ring beyond the confirmed danger range, and regular updates on whether the area is safe to live in.',['Safety steps','Wider warning ring','Safe-to-live updates']];
+P.rng=()=>AR.page();
+</script></body></html>
