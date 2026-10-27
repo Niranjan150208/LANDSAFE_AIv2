@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LANDSAFE AI – Model transparency</title>
+<style>:root{--bg:#fff;--fg:#14202b;--mut:#5b6b7a;--bd:#d9e1e8;--card:#f6f8fa}@media(prefers-color-scheme:dark){:root{--bg:#0f1720;--fg:#e6edf3;--mut:#93a4b5;--bd:#26323f;--card:#16202b}}
+body{margin:0;padding:16px;font:15px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--fg);max-width:960px;margin-inline:auto}
+h1{font-size:20px;margin:0 0 4px}h2{font-size:16px;margin:24px 0 8px}p{color:var(--mut);margin:4px 0}.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin:8px 0}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;cursor:pointer}.sc{font-weight:700;min-width:34px}.b{padding:1px 8px;border-radius:99px;color:#fff;font-size:12px;font-weight:600}
+.n{flex:1;min-width:140px}.d{display:none;margin-top:8px;font-size:13px;color:var(--mut)}.card.open .d{display:block}.ok{color:#10b981}.no{color:#ef4444}a{color:inherit}</style></head><body>
+<h1>LANDSAFE AI – how the score is made</h1>
+<p>Every number below is computed on the server from the inputs listed. <a href="/">Back to console</a></p>
+<h2>Zones (tap one to see why)</h2><div id="z">Loading…</div>
+<h2>Data sources</h2><div id="s"></div>
+<h2>Scenario validation</h2><div id="b"></div>
+<script>
+const $=id=>document.getElementById(id),j=u=>fetch(u).then(r=>r.json()),esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+j('/api/risk').then(L=>{L.sort((a,b)=>b.risk_score-a.risk_score);$('z').innerHTML=L.map(r=>{const q=r.data_quality,k=r.breakdown;return`<div class="card" onclick="this.classList.toggle('open')"><div class="row"><span class="sc">${r.risk_score}</span><span class="b" style="background:${r.color}">${r.level}</span><span class="n">${esc(r.zone)}, ${esc(r.state)}</span><span>data confidence ${q.confidence_pct}%${q.stale?' · stale':''}</span></div>
+<div class="d"><b>Why:</b> ${r.reasons.map(esc).join('; ')}.<br>Points: rain ${k.rainPoints}, soil ${k.soilPoints}, InSAR ${k.insarPoints}, vegetation ${k.vegPoints}, terrain ×${k.terrainMultiplier}, field reports +${k.citizenBonus}.<br>Live inputs: ${q.live_inputs.join(', ')||'none'}. Modelled defaults: ${q.default_inputs.join(', ')||'none'}.<br><i>${esc(r.advice)}</i></div></div>`}).join('')});
+j('/api/datasources').then(L=>{$('s').innerHTML=L.length?L.map(x=>`<div class="card"><span class="${x.ok?'ok':'no'}">${x.ok?'●':'✖'}</span> <b>${esc(x.source)}</b> – ${esc(x.message)} <span style="color:var(--mut)">(${esc(x.updated)} UTC)</span></div>`).join(''):'<p>No sync has run yet.</p>'});
+j('/api/backtest').then(b=>{$('b').innerHTML=`<p>${b.hits}/${b.hits+b.misses} alert scenarios flagged, ${b.falseAlarms}/${b.falseAlarms+b.correctQuiet} quiet scenarios falsely flagged.</p><p>${esc(b.note)}</p>`+b.scenarios.map(r=>`<div class="card"><span class="${r.ok?'ok':'no'}">${r.ok?'✔':'✖'}</span> ${esc(r.name)} – ${r.score} ${r.level} (expected ${r.expect})</div>`).join('')});
+</script></body></html>
