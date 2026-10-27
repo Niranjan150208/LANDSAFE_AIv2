@@ -1,0 +1,98 @@
+[
+ {
+  "name": "Tawang Sector",
+  "state": "Arunachal Pradesh",
+  "lat": 27.59,
+  "lon": 91.86
+ },
+ {
+  "name": "Ziro Valley",
+  "state": "Arunachal Pradesh",
+  "lat": 27.55,
+  "lon": 93.83
+ },
+ {
+  "name": "Guwahati Hills",
+  "state": "Assam",
+  "lat": 26.14,
+  "lon": 91.74
+ },
+ {
+  "name": "Dima Hasao Rail",
+  "state": "Assam",
+  "lat": 25.5,
+  "lon": 93.02
+ },
+ {
+  "name": "Senapati Slopes",
+  "state": "Manipur",
+  "lat": 25.27,
+  "lon": 94.02
+ },
+ {
+  "name": "Cherrapunji Gorge",
+  "state": "Meghalaya",
+  "lat": 25.28,
+  "lon": 91.7
+ },
+ {
+  "name": "Aizawl Ridge",
+  "state": "Mizoram",
+  "lat": 23.73,
+  "lon": 92.72
+ },
+ {
+  "name": "Kohima Bypass",
+  "state": "Nagaland",
+  "lat": 25.67,
+  "lon": 94.1
+ },
+ {
+  "name": "Gangtok NH10",
+  "state": "Sikkim",
+  "lat": 27.33,
+  "lon": 88.61
+ },
+ {
+  "name": "Agartala Hills",
+  "state": "Tripura",
+  "lat": 23.83,
+  "lon": 91.28
+ },
+ {
+  "name": "Itanagar Outskirts",
+  "state": "Arunachal Pradesh",
+  "lat": 27.08,
+  "lon": 93.61
+ },
+ {
+  "name": "Shillong Bypass",
+  "state": "Meghalaya",
+  "lat": 25.57,
+  "lon": 91.88
+ },
+ {
+  "name": "Imphal Ring Rd",
+  "state": "Manipur",
+  "lat": 24.82,
+  "lon": 93.94
+ },
+ {
+  "name": "Lunglei Slope",
+  "state": "Mizoram",
+  "lat": 22.89,
+  "lon": 92.73
+ },
+ {
+  "name": "Mokokchung Pass",
+  "state": "Nagaland",
+  "lat": 26.32,
+  "lon": 94.52
+ },
+ {
+  "name": "Gyalshing Ridge",
+  "state": "Sikkim",
+  "lat": 27.29,
+  "lon": 88.26
+ }
+]

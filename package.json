@@ -1,0 +1,9 @@
+{
+  "name": "landsafe-ai",
+  "version": "1.0.0",
+  "description": "LANDSAFE AI - landslide early-warning console (full stack, zero dependencies)",
+  "main": "server.js",
+  "engines": { "node": ">=22.13" },
+  "scripts": { "start": "node server.js", "test": "node --no-warnings test.js && node --no-warnings test-sync.js" },
+  "license": "MIT"
+}
